@@ -24,13 +24,13 @@ goto:eof
   echo:
   echo binutil 
   echo gcc-core 
-  echo libpsl-devel 
-  echo libtool 
-  echo perl 
-  echo make
-  echo libuv1 
   echo libarchive13
   echo libcurl4
+  echo libpsl-devel
+  echo libtool 
+  echo libuv1 
+  echo perl 
+  echo make
   echo:
   pkg -P  binutils gcc-core libpsl-devel libtool perl make libuv1 libarchive13 libcurl4
   call %_parOneCurrent% 2 & goto:eof
