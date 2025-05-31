@@ -22,17 +22,14 @@ goto:eof
   echo SEARCH PACKAGES IN CYGWIN SELECT PACKAGES WINDOW:
   echo *************************************************
   echo:
-  echo binutil 
-  echo gcc-core 
-  echo libarchive13
-  echo libcurl4
+  echo binutils
+  echo gcc-core
   echo libpsl-devel
-  echo libtool 
-  echo libuv1 
-  echo perl 
+  echo libtool
+  echo perl
   echo make
   echo:
-  pkg -P  binutils gcc-core libpsl-devel libtool perl make libuv1 libarchive13 libcurl4
+  pkg -P  binutils, gcc-core, libpsl-devel, libtool, perl, make
   call %_parOneCurrent% 2 & goto:eof
  )
  if "%1"=="2" (
