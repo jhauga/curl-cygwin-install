@@ -12,20 +12,19 @@ sed -i "s/\\/-:-/g" tmpFileSetHostFolder.txt
 call cmdVar "type tmpFileSetHostFolder.txt" _curDir
 
 :: Remove prior config if exists.
-if EXIST runInstallWinget.wsb del /Q runInstallWinget.wsb >nul 2>nul
-copy /Y InstallWinget.wsb runInstallWinget.wsb >nul 2>nul
-
-:: Remove prior sandbox if exists.
-if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
-xcopy /E/I map sandbox >nul 2>nul
+call :_prepForNewRun 1 start
 
 :: Start process for Sandbox.
 call :_startSetHostFolder 1 & goto:eof
 
+:: Main subroutine of procedure.
 :_startSetHostFolder
  if "%1"=="1" (
   rem update with current path
   sed -i -E -e "s/(<HostFolder>)(.*)(<\/HostFolder>)/\1%_curDir%\\sandbox\3/" -e "s/-:-/\\/g" runInstallWinget.wsb
+  
+  rem update with config option
+  sed -i -E "0,/(_configOption=).*/{s/(_configOption=).*/\1%_configOption%/}" sandbox\current.bat
   
   echo When Sandbox Opens, open the mapped folder and double click "runInstall.bat". & rem
   echo:
@@ -37,13 +36,97 @@ call :_startSetHostFolder 1 & goto:eof
   
   rem remove tmp file for windows command line variable
   del tmpFileSetHostFolder.txt
-  
+
+  rem next part of process
+  call :_startSetHostFolder 2 & goto:eof
+ )
+ if "%1"=="2" (
   rem output final notes on process
-  echo Press Enter to Close this Window:                                              & rem
-  echo NOTE - the entire install process should take around 15 minutes.               & rem
-  echo NOTE - if needed delete runInstallWinget.wsb and sandbox folder after install. & rem
+  echo Press Enter to Close this Window:                                                & rem
+  echo  NOTE - closing after Sandbox session has ended will remove temp files of build. & rem
+  echo  NOTE - the entire install process should take around 15 minutes.                & rem
+  echo  NOTE - if needed delete runInstallWinget.wsb and sandbox folder after install.  & rem
   echo:
   pause
+  
+  rem next part of process
+  call :_startSetHostFolder 3 & goto:eof
+ )
+ if "%1"=="3" (
+  rem if no sandbox process, delete folders used for build, keeping install
+  echo Cleaning Sandbox: & rem
+  
+  rem ensure sandbox is not running
+  tasklist /fi "imagename eq WindowsSandboxServer.exe" | find "WindowsSandboxServer.exe" >nul 2>nul
+  if ERRORLEVEL 1 (
+   if EXIST "sandbox\curl" move "sandbox\curl" curl >nul 2>nul
+   call :_prepForNewRun 1 close
+  ) else (
+   rem remove variables for process
+   goto _removeBatchVariables
+  )
+  
   exit /b
  )
+goto:eof
+
+:: Support subroutines.
+:_prepForNewRun
+ if "%1"=="1" (
+  rem remove prior runInstallWinget if exists
+  if EXIST runInstallWinget.wsb del /Q runInstallWinget.wsb >nul 2>nul
+  if "%2"=="start" copy /Y InstallWinget.wsb runInstallWinget.wsb >nul 2>nul
+  
+  rem remove prior sandbox if exists
+  if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
+  if "%2"=="start" xcopy /E/I map sandbox >nul 2>nul
+  
+  rem if starting procedure, give option to specify config option
+  if "%2"=="start" (
+   rem select configuration option
+   echo Enter Corresponding DIGIT to Select Config Option:
+   echo ***************************************************
+   echo NOTE - press enter to use default --without-ssl option.
+   echo:
+   type config-options.txt
+   echo:
+   set /P _configOption=
+   
+   rem store number of lines in a variable
+   FOR /F %%A in ('find /v /c "" ^< config-options.txt') DO set _numberOfOptions=%%A
+   
+   rem step 2 - allow batch to process variable change
+   call :_prepForNewRun 2 & goto:eof
+  ) else (
+   rem remove variables for process
+   goto _removeBatchVariables
+  )
+ )
+ if "%1"=="2" (
+  rem define config option per input
+  if NOT DEFINED _configOption (
+   set "_configOption=--without-ssl"
+  ) else (
+   rem ensure that correct digit was input
+   echo %_configOption% | findstr /R [1-%_numberOfOptions%] >nul 2>nul
+   if "%ERRORLEVEL%"=="0" (
+    rem store appriopriate option in variable from input digit
+    type config-options.txt | find "%_configOption%" | sed -E "s/^(%_configOption:~0,1%%)(.*)$/\2/" > _tmp-config-opt.txt
+    call cmdVar "type _tmp-config-opt.txt" _configOption
+    
+    rem remove temp file
+    del /Q _tmp-config-opt.txt >nul 2>nul
+   ) else (
+    echo Incorrect Input - Using Default --without-ssl & rem
+    set "_configOption=--without-ssl"
+   )
+  )
+ )
+goto:eof
+
+:_removeBatchVariables
+ echo Removing Variables from Process: & rem
+ set _curDir=
+ set _configOption=
+ set _numberOfOptions=
 goto:eof

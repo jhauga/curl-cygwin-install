@@ -1,0 +1,6 @@
+1  --with-gnutls
+2  --with-mbedtls
+3  --with-openssl
+4  --with-rustls
+5  --with-wolfssl
+6  --without-ssl
