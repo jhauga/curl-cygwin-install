@@ -10,9 +10,20 @@ if NOT EXIST initalize.txt (
  echo ready > initalize.txt
  runInstall.bat
 ) else (
+ rem check if notepad set for install
+ if EXIST "install_notepad.txt" (
+  winget install Notepad++.Notepad++ --source winget
+  del /Q install_notepad.txt
+ )
  echo Installing cygwin: & rem
  winget install cygwin.cygwin --source winget
- set PATH=C:\cygwin64\bin\;%PATH%"
+ 
+ echo Setting Temp Path for Session: & rem
+ set PATH=C:\cygwin64\bin\;%PATH%
+ 
+ echo Setting User Path to Include cygwin: & rem
+ setx PATH "C:\cygwin64\bin\;%PATH%"
+ 
  call current.bat ":_curl_cygwin"
  call :_cleanRunInstall 1
 )
@@ -21,9 +32,8 @@ goto:eof
 :_cleanRunInstall
  if "%1"=="1" (  
   cd "%~dp0"
-  move dump\curl curl
   del initalize.txt
-  rm -rf https* dump
+  rm -rf https*
   echo Run Install Complete: & rem
   echo:
   echo What Happened?

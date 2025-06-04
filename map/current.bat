@@ -9,13 +9,28 @@ REM current
 set _configOption=--without-ssl
 set "_parOneCurrent=%~1"
 set "_checkParOneCurrent=-%_parOneCurrent%-"
+set "_parTwoCurrent=%~2"
+set "_checkParTwoCurrent=-%_parTwoCurrent%-"
+
+:: Store most recent in variable.
+curl -s https://curl.se/download.html | findstr "https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-" | head -n 1 | sed -E "s/^(.*) href=\"(.*)\"(.*)$/\2/" > curl_download_uri.txt
+call cmdVar "type curl_download_uri.txt" _curlDownload
+del /Q curl_download_uri.txt
 
 :: Safety condition before beginning process.
 if "%_checkParOneCurrent%"=="--" (
- echo No Parameter Passed: & rem
- goto _removeBatchhVariablesCurrent
+ rem assume debugging - add/edit subroutines as needed
+ set "_parOneCurrent=:_curl_cygwin"
+ if "%_checkParTwoCurrent%"=="--" (
+  rem call from step 1
+  call :_curl_cygwin 1 & rem change subroutine call accoringly - _parOneCurrent has to expand
+ ) else (
+  call :_curl_cygwin %_parTwoCurrent% & rem change subroutine call accoringly - _parOneCurrent has to expand
+ )
 ) else (
  echo Using %_configOption% to Build curl:
+ 
+ rem start installation
  call %_parOneCurrent% 1
 )
 goto:eof
@@ -50,17 +65,22 @@ goto:eof
   cd dump
   
   rem download for cygwin build
-  curl https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-8.13.0-1-src.tar.xz -o src.tar.xz
+  rem use variable from start of process to get most recent
+  curl %_curlDownload% -o src.tar.xz
   
   rem extract files and specify install for curl
-  tar -xJf src.tar.xz && rm src.tar.xz
-  move curl-8.13.0-1.src\curl-8.13.0.tar.xz curl.tar.xz
+  tar -xJf src.tar.xz & rm src.tar.xz
+  move curl* tmp
+  move tmp\curl-*.tar.xz curl.tar.xz
   
   rem extract install files for curl
-  tar -xJf curl.tar.xz && rm curl.tar.xz
-  move curl-8.13.0 curl
+  tar -xJf curl.tar.xz & rm curl.tar.xz
+  move curl* ..\curl
+  rm -rf tmp
+  
   
   rem begin install process
+  cd ..
   cd curl
   sh configure %_configOption%
   make
@@ -81,9 +101,12 @@ goto:eof
 
 :: Clean variables from process.
 :_removeBatchhVariablesCurrent
- set _configOption=
  set _parOneCurrent=
  set _checkParOneCurrent=
+ set _parTwoCurrent=
+ set _checkParTwoCurrent=
+ set _configOption=
+ set _curlDownload=
  
  exit /b
 goto:eof
