@@ -53,7 +53,7 @@ call :_startCygwinInstall 1 & goto:eof
   pause
   echo Delay of 15 seconds for Sandbox Task to Close
   Timeout 15 >nul 2>nul
-  echoL
+  echo
   rem next part of process
   call :_startCygwinInstall 3 & goto:eof
  )
