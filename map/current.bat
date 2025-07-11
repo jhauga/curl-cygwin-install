@@ -54,7 +54,8 @@ goto:eof
   echo:
   
   rem use condensed name to get packages
-  pkg -P binutils -P gcc-core -P libpsl-devel -P libtool -P perl -P make
+  rem pkg -P binutils -P gcc-core -P libpsl-devel -P libtool -P perl -P make
+  pkg -q -P binutils,gcc-core,libpsl-devel,libtool,perl,make
   
   rem next part of process
   call %_parOneCurrent% 2 & goto:eof
