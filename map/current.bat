@@ -24,18 +24,21 @@ del /Q curl_download_uri.txt
 :: Safety condition before beginning process.
 if "%_checkParOneCurrent%"=="--" (
  rem assume debugging - add/edit subroutines as needed
- set "_parOneCurrent=:_curl_cygwin"
- if "%_checkParTwoCurrent%"=="--" (
-  rem call from step 1
-  call :_curl_cygwin 1 & rem change subroutine call accoringly - _parOneCurrent has to expand
- ) else (
-  call :_curl_cygwin %_parTwoCurrent% & rem change subroutine call accoringly - _parOneCurrent has to expand
- )
-) else (
  echo Using %_configOption% to Build curl:
+ set "_parOneCurrent=:_curl_cygwin"
  
  rem start installation
- call %_parOneCurrent% 1
+ call :_curl_cygwin 1 & goto:eof
+) else (
+ if "%_checkParTwoCurrent%"=="--" (
+  rem call from step 1
+  rem start installation
+  call %_parOneCurrent% 1 & goto:eof
+ ) else (
+  rem call step from parTwo
+  rem start installation
+  call %_parOneCurrent% %_parTwoCurrent% & rem change subroutine call accoringly - _parOneCurrent has to expand
+ )
 )
 goto:eof
 
@@ -58,8 +61,10 @@ goto:eof
   echo:
   
   rem use condensed name to get packages
-  rem pkg -P binutils -P gcc-core -P libpsl-devel -P libtool -P perl -P make
-  pkg -q -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+  pkg -P binutils -P gcc-core -P libpsl-devel -P libtool -P perl -P make
+  rem pkg -q -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+  
+  rem pkg -q -P libexpat1,libjsoncpp25,librhash0
   
   rem next part of process
   call %_parOneCurrent% 2 & goto:eof
