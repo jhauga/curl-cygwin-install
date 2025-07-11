@@ -54,8 +54,8 @@ call :_startCygwinInstall 1 & goto:eof
  )
  if "%1"=="2" (
   rem output final notes on process
-  echo *                                                                                   *
-  echo Wait for Sandbox Process to Finish, then Press Enter to Close this Window:       & rem
+  echo *                                                                                 *
+  echo * Wait for Sandbox Process to Finish, then Press Enter to Close this Window:      * & rem
   echo:
   TIMEOUT /T 4 >nul 2>nul
   echo IMPORTANT *************************************************************************
@@ -66,15 +66,16 @@ call :_startCygwinInstall 1 & goto:eof
   echo ***********************************************************************************
   echo:
   pause
-  echo Delay of 15 seconds for Sandbox Task to Close
+  echo * Delay of 15 seconds to ensure Sandbox task is closed.                           * & rem
   Timeout 15 >nul 2>nul
-  echo
+  echo *                                                                                 *
   rem next part of process
   call :_startCygwinInstall 3 & goto:eof
  )
  if "%1"=="3" (
   rem if no sandbox process, delete folders used for build, keeping install
-  echo Cleaning Sandbox: & rem
+  echo * Cleaning Sandbox:                                                               * & rem
+  echo *                                                                                 *
   
   rem ensure sandbox is not running
   tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
@@ -156,8 +157,15 @@ goto:eof
 goto:eof
 
 :_removeBatchVariables
- echo Removing Variables from Process: & rem
+ echo *                                                                                 *
+ echo * Removing Variables from Process:                                                * & rem
+ echo *                                                                                 *
  set _curDir=
  set _configOption=
  set _numberOfOptions=
+ echo * COMPLETE:                                                                       * & rem
+ echo *                                                                                 *
+ echo ***********************************************************************************
+ echo ***********************************************************************************
+ echo:
 goto:eof
