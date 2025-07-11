@@ -4,6 +4,9 @@ REM runInstall
 
 cd /D "%~dp0"
 
+:: Set cmdVar full path in variable, ensuring it can be used outside folder.
+set "_cmdVar=%~dp0cmdVar.bat"
+
 if NOT EXIST initalize.txt (
  echo Installing winget: & rem
  powershell.exe -ExecutionPolicy Bypass -File "C:\Users\WDAGUtilityAccount\Desktop\sandbox\install-winget.ps1"
