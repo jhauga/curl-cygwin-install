@@ -25,10 +25,19 @@ call :_startCygwinInstall 1 & goto:eof
   
   rem update with config option
   sed -i -E "0,/(_configOption=).*/{s/(_configOption=).*/\1%_configOption%/}" sandbox\current.bat
-  
-  echo When Sandbox Opens, open the mapped folder and double click "runInstall.bat". & rem
+  echo:
+  echo INSTRUCTIONS: *********************************************************************
+  TIMEOUT /T 1 >nul 2>nul
+  echo *                                                                                 *
+  echo * When Sandbox Opens, open the mapped folder and double click "runInstall.bat".   * & rem
+  echo *                                                                                 *
+  TIMEOUT /T 5 >nul 2>nul
+  echo * CONFIGURE SANDBOX: **************************************************************
+  TIMEOUT /T 1 >nul 2>nul
+  echo *                                                                                 *
   echo * Do you also want to install Notepad++ for debugging in Sandox?
   echo * input - yes or no
+  echo *                                                                                 *  
   echo:
   set /P _installNotepad=
   call :_checkInstallNotepad 1
@@ -45,10 +54,16 @@ call :_startCygwinInstall 1 & goto:eof
  )
  if "%1"=="2" (
   rem output final notes on process
+  echo *                                                                                   *
   echo Wait for Sandbox Process to Finish, then Press Enter to Close this Window:       & rem
-  echo  NOTE - closing after Sandbox session has ended will remove temp files of build. & rem
-  echo  NOTE - the entire install process should take around 15 minutes.                & rem
-  echo  NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install.   & rem
+  echo:
+  TIMEOUT /T 4 >nul 2>nul
+  echo IMPORTANT *************************************************************************
+  echo * NOTE - closing after Sandbox session has ended will remove temp files of build. * & rem
+  echo * NOTE - the entire install process should take around 15 minutes.                * & rem
+  echo * NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install.   * & rem
+  echo *                                                                                 *
+  echo ***********************************************************************************
   echo:
   pause
   echo Delay of 15 seconds for Sandbox Task to Close
