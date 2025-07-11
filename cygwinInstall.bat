@@ -48,7 +48,7 @@ call :_startCygwinInstall 1 & goto:eof
   echo Wait for Sandbox Process to Finish, then Press Enter to Close this Window:       & rem
   echo  NOTE - closing after Sandbox session has ended will remove temp files of build. & rem
   echo  NOTE - the entire install process should take around 15 minutes.                & rem
-  echo  NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install.  & rem
+  echo  NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install.   & rem
   echo:
   pause
   echo Delay of 15 seconds for Sandbox Task to Close

@@ -13,7 +13,8 @@ set "_parTwoCurrent=%~2"
 set "_checkParTwoCurrent=-%_parTwoCurrent%-"
 
 :: Store most recent in variable.
-curl -s https://curl.se/download.html | findstr "https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-" | head -n 1 | sed -E "s/^(.*) href=\"(.*)\"(.*)$/\2/" > curl_download_uri.txt
+rem curl -s https://curl.se/download.html | findstr "https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-" | head -n 1 | sed -E "s/^(.*) href=\"(.*)\"(.*)$/\2/" > curl_download_uri.txt
+curl -s https://curl.se/download.html | findstr /R "https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-[0-9].*src.tar.xz" | head -n 1 | sed -E "s/^(.*) href=\"(.*)\"(.*)$/\2/" > curl_download_uri.txt
 call cmdVar "type curl_download_uri.txt" _curlDownload
 del /Q curl_download_uri.txt
 
