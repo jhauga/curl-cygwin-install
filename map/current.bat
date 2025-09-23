@@ -24,7 +24,7 @@ del /Q curl_download_uri.txt
 :: Safety condition before beginning process.
 if "%_checkParOneCurrent%"=="--" (
  rem assume debugging - add/edit subroutines as needed
- echo Using %_configOption% to Build curl:
+ call "%_instructLine%" "Using %_configOption% to Build curl:"
  set "_parOneCurrent=:_curl_cygwin"
  
  rem start installation
@@ -45,32 +45,30 @@ goto:eof
 :_curl_cygwin
  if "%1"=="1" (
   rem download makeshift package management executable from cygwin
-  echo Preparing to Install Required cygwin Packages: & rem
+  call "%_instructLine%" "Preparing to Install Required cygwin Packages:"
   
   curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
   cls
-  echo SEARCH PACKAGES IN CYGWIN SELECT PACKAGES WINDOW:
-  echo *************************************************
-  echo:
-  echo binutils
-  echo gcc-core
-  echo libpsl-devel
-  echo libtool
-  echo perl
-  echo make
-  echo:
+  call "%_instructLine%" /H "SEARCH PACKAGES IN CYGWIN SELECT PACKAGES WINDOW:"
+  call "%_instructLine%" "IMPORTANT - check install from source."
+  call "%_instructLine%" /D
+  call "%_instructLine%" /B
+  call "%_instructLine%" " binutils"
+  call "%_instructLine%" " gcc-core"
+  call "%_instructLine%" " libpsl-devel"
+  call "%_instructLine%" " libtool"
+  call "%_instructLine%" " make"
+  call "%_instructLine%" " perl"
+  call "%_instructLine%" /B
   
   rem use condensed name to get packages
-  pkg -P binutils -P gcc-core -P libpsl-devel -P libtool -P perl -P make
-  rem pkg -q -P binutils,gcc-core,libpsl-devel,libtool,perl,make
-  
-  rem pkg -q -P libexpat1,libjsoncpp25,librhash0
+  pkg -P binutils,gcc-core,libpsl-devel,libtool,perl,make
   
   rem next part of process
   call %_parOneCurrent% 2 & goto:eof
  )
  if "%1"=="2" (
-  echo Installing curl: & rem
+  call "%_instructLine%" "Installing curl:"
   mkdir dump
   cd dump
   
@@ -99,14 +97,27 @@ goto:eof
   call %_parOneCurrent% 3 & goto:eof
  )
  if "%1"=="3" (
-  echo Running Basic Commands to Test Install: & rem
+  call "%_instructLine%" "Running Basic Commands to Test Install:"
+  src\curl --version
+  call :_testCommandSeparator
   src\curl --help
+  call :_testCommandSeparator
   src\curl http://example.com
+  call :_testCommandSeparator
   src\curl -I http://example.com
+  call :_testCommandSeparator
   src\curl -H "accept-language: en-US,en;q=0.9" http://example.com
+  call :_testCommandSeparator
   src\curl -L http://example.com
+  call :_testCommandSeparator
   goto _removeBatchhVariablesCurrent
  )
+goto:eof
+
+:_testCommandSeparator
+ call "%_instructLine%" /B
+ call "%_instructLine%" /D
+ call "%_instructLine%" /B
 goto:eof
 
 :: Clean variables from process.

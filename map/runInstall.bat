@@ -11,6 +11,7 @@ cd /D "%~dp0"
 
 :: Set cmdVar full path in variable, ensuring it can be used outside folder.
 set "_cmdVar=%~dp0cmdVar.bat"
+set "_instructLine=%~dp0instructLine.bat"
 
 :: Debuug - if degugging in sandbox.
 if "%_debug%"=="1" (
@@ -23,7 +24,9 @@ if "%_debug%"=="1" (
  rem ****************************************************************************
  rem START PROCESS AS NORMAL
  rem ****************************************************************************
- echo Installing winget: & rem
+ call "%_instructLine%" /H Installing winget:
+ call "%_instructLine%" /D
+ call "%_instructLine%" /B
  powershell.exe -ExecutionPolicy Bypass -File "C:\Users\WDAGUtilityAccount\Desktop\sandbox\install-winget.ps1"
  echo ready > initalize.txt
  runInstall.bat
@@ -33,13 +36,17 @@ if "%_debug%"=="1" (
   winget install Notepad++.Notepad++ --source winget
   del /Q install_notepad.txt
  )
- echo Installing cygwin: & rem
+ call "%_instructLine%" /H Installing cygwin:
+ call "%_instructLine%" /D
+ call "%_instructLine%" /B
  winget install cygwin.cygwin --source winget
  
- echo Setting Temp Path for Session: & rem
+ call "%_instructLine%" /H Setting Temp Path for Session:
+ call "%_instructLine%" /D
+ call "%_instructLine%" /B
  set PATH=C:\cygwin64\bin\;%PATH%
  
- echo Setting User Path to Include cygwin: & rem
+ call "%_instructLine%" "Setting User path to include cygwin."
  setx PATH "C:\cygwin64\bin\;%PATH%"
  
  call current.bat ":_curl_cygwin"
@@ -52,9 +59,10 @@ goto:eof
   cd "%~dp0"
   if EXIST "initalize.txt" del /Q initalize.txt
   rm -rf https*
-  echo Run Install Complete: & rem
-  echo:
-  echo What Happened?
+  call "%_instructLine%" /H Run Install Complete: & rem
+  call "%_instructLine%" /B
+  call "%_instructLine%" "What Happened?"
+  call "%_instructLine%" /B
   pause
  )
  exit /b
