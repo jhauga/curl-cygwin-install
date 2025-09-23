@@ -11,9 +11,9 @@ feature is on in `Turn Windows features on or off`.
 `git clone https://github.com/jhauga/curl-cygwin-install.git`
 
 2. Open or navigate to `curl-cygwin-install`, and run or double click
-`cygwinInstall.bat`, then read prompt instruction.
+`install.bat`, then read prompt instruction.
 3. Focus on Sandbox window, and follow instructions from the prior
-`cygwinInstall` prompt.
+`install` prompt.
 4. The process will begin, and when the `cygwin` window appears, follow
 instructions from the installer until "Select Packages" window is reached.
 5. When "Select Packages" window is reached select or search for all items

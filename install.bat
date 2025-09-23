@@ -12,7 +12,7 @@ sed -i "s/\\/-:-/g" tmpFileCygwinInstall.txt
 call cmdVar "type tmpFileCygwinInstall.txt" _curDir
 
 :: Remove prior config if exists.
-call :_prepForNewRun 1 start
+call :_prepForNewRun 1 --start
 
 :: Start process for Sandbox.
 call :_startCygwinInstall 1 & goto:eof
@@ -75,12 +75,11 @@ call :_startCygwinInstall 1 & goto:eof
   rem if no sandbox process, delete folders used for build, keeping install
   call instructLine "Cleaning Sandbox:"
   call instructLine /B
-  
   rem ensure sandbox is not running
   tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
   if ERRORLEVEL 1 (
    if EXIST "sandbox\curl" move "sandbox\curl" curl >nul 2>nul
-   call :_prepForNewRun 1 close
+   call :_prepForNewRun 1 --close
   ) else (
    rem remove variables for process
    goto _removeBatchVariables
@@ -95,18 +94,18 @@ goto:eof
  if "%1"=="1" (
   rem remove prior runStartSandbox if exists
   if EXIST runStartSandbox.wsb del /Q runStartSandbox.wsb >nul 2>nul
-  if "%2"=="start" copy /Y StartSandbox.wsb runStartSandbox.wsb >nul 2>nul
+  if "%2"=="--start" copy /Y StartSandbox.wsb runStartSandbox.wsb >nul 2>nul
   
   rem remove prior sandbox if exists
   if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
-  if "%2"=="start" (
+  if "%2"=="--start" (
    xcopy /E/I map sandbox >nul 2>nul
    copy /Y cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
    copy /Y instructLine.bat sandbox\instructLine.bat >nul 2>nul
   )
   
   rem if starting procedure, give option to specify config option
-  if "%2"=="start" (
+  if "%2"=="--start" (
    rem select configuration option
    call instructLine "Enter Corresponding DIGIT to Select Config Option:"
    call instructLine /D
@@ -122,8 +121,17 @@ goto:eof
    rem step 2 - allow batch to process variable change
    call :_prepForNewRun 2 & goto:eof
   ) else (
-   rem remove variables for process
-   goto _removeBatchVariables
+   rem ensure curl was moved
+   if EXIST "curl" (
+    call instructLine "Delete curl folder from Sandbox install?"
+    call instructLine " y or n "
+    call instructLine /B
+    set /P _delCurlInstall=
+    call :_prepForNewRun --close & goto:eof
+   ) else (
+    rem remove variables for process
+    goto _removeBatchVariables
+   )
   )
  )
  if "%1"=="2" (
@@ -145,6 +153,12 @@ goto:eof
     set "_configOption=--without-ssl"
    )
   )
+ )
+ if "%1"=="--close" (
+  if /i "%_delCurlInstall%"=="y" (
+   rmdir /s/q curl
+  )
+  goto _removeBatchVariables
  )
 goto:eof
 
