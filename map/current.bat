@@ -4,7 +4,7 @@ REM current
 ::  NOTE - using _parOneCurrent to call main subroutine as
 ::         this could be used with additional subroutines to
 ::         test different builds of curl.
- 
+
 :: Global variables.
 set _configOption=--without-ssl
 set "_parOneCurrent=%~1"
@@ -26,7 +26,7 @@ if "%_checkParOneCurrent%"=="--" (
  rem assume debugging - add/edit subroutines as needed
  call "%_instructLine%" "Using %_configOption% to Build curl:"
  set "_parOneCurrent=:_curl_cygwin"
- 
+
  rem start installation
  call :_curl_cygwin 1 & goto:eof
 ) else (
@@ -46,7 +46,7 @@ goto:eof
  if "%1"=="1" (
   rem download makeshift package management executable from cygwin
   call "%_instructLine%" "Preparing to Install Required cygwin Packages:"
-  
+
   curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
   cls
   call "%_instructLine%" /H "SEARCH PACKAGES IN CYGWIN SELECT PACKAGES WINDOW:"
@@ -60,10 +60,10 @@ goto:eof
   call "%_instructLine%" " make"
   call "%_instructLine%" " perl"
   call "%_instructLine%" /B
-  
+
   rem use condensed name to get packages
-  pkg -P binutils,gcc-core,libpsl-devel,libtool,perl,make
-  
+  pkg --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+
   rem next part of process
   call %_parOneCurrent% 2 & goto:eof
  )
@@ -71,34 +71,36 @@ goto:eof
   call "%_instructLine%" "Installing curl:"
   mkdir dump
   cd dump
-  
+
   rem download for cygwin build
   rem use variable from start of process to get most recent
   curl %_curlDownload% -o src.tar.xz
-  
+
   rem extract files and specify install for curl
   tar -xJf src.tar.xz & rm src.tar.xz
   move curl* tmp
   move tmp\curl-*.tar.xz curl.tar.xz
-  
+
   rem extract install files for curl
   tar -xJf curl.tar.xz & rm curl.tar.xz
   move curl* ..\curl
   rm -rf tmp
-  
-  
+
+
   rem begin install process
   cd ..
   cd curl
   sh configure %_configOption%
   make
-  
+
   rem next part of process
   call %_parOneCurrent% 3 & goto:eof
  )
  if "%1"=="3" (
   call "%_instructLine%" "Running Basic Commands to Test Install:"
+  echo install_check> "install_check.txt"
   src\curl --version
+  src\curl --version >> "install_check.txt"
   call :_testCommandSeparator
   src\curl --help
   call :_testCommandSeparator
@@ -128,6 +130,7 @@ goto:eof
  set _checkParTwoCurrent=
  set _configOption=
  set _curlDownload=
- 
+ rem move "install_check.txt" to mapped sandbox folder
+ move "install_check.txt" "%~dp0install_check.txt"
  exit /b
 goto:eof

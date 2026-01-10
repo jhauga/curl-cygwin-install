@@ -2,3 +2,6 @@ curl/
 zipFilesCall.bat
 sandbox
 runStartSandbox.wsb 
+setup.log 
+setup.log.full 
+curlInstructionWork.txt 

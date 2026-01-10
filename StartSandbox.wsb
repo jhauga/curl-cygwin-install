@@ -5,4 +5,7 @@
       <ReadOnly>false</ReadOnly>
     </MappedFolder>
   </MappedFolders>
+  <LogonCommand>
+    <Command>cmd.exe /c start "Install" cmd.exe /k C:\Users\WDAGUtilityAccount\Desktop\sandbox\runInstall.bat</Command>
+  </LogonCommand>
 </Configuration>
