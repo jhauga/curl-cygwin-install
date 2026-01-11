@@ -1,6 +1,6 @@
-@echo off & title "cygwinInstall"
-REM cygwinInstall
-::  Set the path for InstallWinget.wsb
+@echo off & title "curl-cygwin-install"
+REM install
+::  Start installation check for curl install instructions of cygwin.
 
 cd /D "%~dp0"
 
@@ -24,6 +24,22 @@ if "%_parOneCurlCygwinInstall%"=="--delay" (
  goto _removeBatchVariables
  goto:eof
 )
+:: For back-to-back calls of scheduled task to HOT-GLUE issue #1
+rem HOT-GLUE
+tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
+if "%_parOneCurlCygwinInstall%"=="--task-run" (
+ if "%ERRORLEVEL%"=="0" (
+  if NOT EXIST "sandbox\sandBoxRan.txt" (
+   rem if run start sandbox, then sandBoxRan.txt was created
+   taskkill /F /FI "imagename eq WindowsSandboxServer.exe"
+   TIMEOUT /T 1 >nul 2>nul
+   "%~dp0install.bat" %_parOneCurlCygwinInstall%
+  )
+  exit /b
+  goto:eof
+ )
+)
+
 :: Process to ensure path is correct for config.
 cd> tmpFileCygwinInstall.txt
 sed -i "s/\\/-:-/g" tmpFileCygwinInstall.txt
@@ -42,6 +58,8 @@ call :_startCygwinInstall 1 & goto:eof
  if "%1"=="1" (
   rem update with current path
   sed -i -E -e "s/(<HostFolder>)(.*)(<\/HostFolder>)/\1%_curDir%\\sandbox\3/" -e "s/-:-/\\/g" runStartSandbox.wsb
+  rem ensure file write completes
+  TIMEOUT /T 1 /NOBREAK >nul 2>nul
 
   rem update with config option
   sed -i -E "0,/(_configOption=).*/{s/(_configOption=).*/\1%_configOption%/}" sandbox\current.bat
@@ -63,7 +81,21 @@ call :_startCygwinInstall 1 & goto:eof
    sed -i -z -E "s/set \"_runAsScheduledTask=[0-9]/set \"_runAsScheduledTask=1/" sandbox\runInstall.bat
   )
   rem start sandbox, mapping clean sandbox folder
-  runStartSandbox.wsb
+  if NOT EXIST "%~dp0runStartSandbox.wsb" (
+   if "%_checkParOneCurlCygwinInstall%"=="--" (
+    call instructLine "Something unexpected happened. Exiting batch."
+    exit /b
+   ) else (
+    rem this is primarily for scheduled task as task will be terminated if this recurs over an hour
+    if "%_parOneCurlCygwinInstall%"=="--task-run" (
+     install.bat %_parOneCurlCygwinInstall%
+    )
+    exit /b
+   )
+   goto:eof
+  ) else (
+   start "" "%~dp0runStartSandbox.wsb"
+  )
   rem remove tmp file for windows command line variable
   del tmpFileCygwinInstall.txt
   rem next part of process
@@ -112,34 +144,36 @@ goto:eof
 :: Support subroutines.
 :_prepForNewRun
  if "%1"=="1" (
-  rem remove prior runStartSandbox if exists
-  if EXIST runStartSandbox.wsb del /Q runStartSandbox.wsb >nul 2>nul
-  if "%2"=="--start" copy /Y StartSandbox.wsb runStartSandbox.wsb >nul 2>nul
-
-  rem remove prior sandbox if exists
-  if NOT "%_parOneCurlCygwinInstall%"=="--task-run" (
-   if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
-  )
   if "%2"=="--start" (
-   xcopy /E/I map sandbox >nul 2>nul
+   rem remove prior runStartSandbox if exists
+   if EXIST "runStartSandbox.wsb" (
+    del /Q runStartSandbox.wsb >nul 2>nul
+    TIMEOUT /T 1 /NOBREAK >nul 2>nul
+   )
+   copy /Y StartSandbox.wsb runStartSandbox.wsb >nul 2>nul
+   rem remove prior sandbox if exists
+   if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
+   xcopy /Y/E/I map sandbox >nul 2>nul
    copy /Y cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
    copy /Y instructLine.bat sandbox\instructLine.bat >nul 2>nul
-  )
+   rem ensure sandbox folder is fully written before proceeding
+   if EXIST "sandbox\runInstall.bat" (
+    TIMEOUT /T 1 /NOBREAK >nul 2>nul
+   )
 
-  rem if starting procedure, give option to specify config option
-  if "%2"=="--start" (
    if "%_parOneCurlCygwinInstall%"=="--task-run" (
     rem use default
     set "_configOption=--without-ssl"
     call :_prepForNewRun 2 --set-default & goto:eof
    ) else (
+    rem if starting procedure, give option to specify config option
     rem select configuration option
     call instructLine "Enter Corresponding DIGIT to Select Config Option:"
     call instructLine /D
     call instructLine "NOTE - press enter to use default --without-ssl option."
     call instructLine /B
-    set /P _configOption=
     call instructLine /F config-options.txt
+    set /P _configOption=
     call instructLine /B
 
     rem store number of lines in a variable

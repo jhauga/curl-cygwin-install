@@ -17,6 +17,9 @@ cd /D "%~dp0"
 set "_cmdVar=%~dp0cmdVar.bat"
 set "_instructLine=%~dp0instructLine.bat"
 
+:: HOT-GLUE for issue #1, file to check when duplicating scheduled task
+echo Sandbox Running > sandBoxRan.txt
+
 :: Debuug - if degugging in sandbox.
 if "%_debug%"=="1" (
  if "%_debugRemoveDump%"=="1" (
@@ -65,6 +68,8 @@ goto:eof
   rm -rf https*
   call "%_instructLine%" /H "Run Install Complete:"
   call "%_instructLine%" /B
+  rem delete HOT-GLUE sandbox check file
+  if EXIST "%~dp0sandBoxRan.txt" del /Q "%~dp0sandBoxRan.txt" >nul 2>nul
   if "%_runAsScheduledTask%"=="0" (
    call "%_instructLine%" "What Happened?"
    call "%_instructLine%" /B
