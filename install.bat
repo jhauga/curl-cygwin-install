@@ -13,9 +13,13 @@ if "%_parOneCurlCygwinInstall%"=="--delay" (
  taskkill /F /FI "imagename eq WindowsSandboxServer.exe"
  if EXIST "sandbox" (
   if EXIST "sandbox\curlInstructionWork.txt" (
-   move "sandbox\curlInstructionWork.txt" "curlInstructionWork.txt"
+   move /Y "sandbox\curlInstructionWork.txt" "curlInstructionWork.txt" >nul 2>nul
   ) else (
    echo Fail> curlInstructionWork.txt
+  )
+  if EXIST "sandbox\error_log.log" (
+   move /Y "sandbox\error_log.log" "error_log.log" >nul 2>nul
+   if EXIST "sandbox\curl" move /Y "sandbox\curl" curl >nul 2>nul
   )
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
@@ -130,7 +134,7 @@ call :_startCygwinInstall 1 & goto:eof
   rem ensure sandbox is not running
   tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
   if ERRORLEVEL 1 (
-   if EXIST "sandbox\curl" move "sandbox\curl" curl >nul 2>nul
+   if EXIST "sandbox\curl" move /Y "sandbox\curl" curl >nul 2>nul
    call :_prepForNewRun 1 --close
   ) else (
    rem remove variables for process

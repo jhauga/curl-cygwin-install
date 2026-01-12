@@ -86,7 +86,6 @@ goto:eof
   move curl* ..\curl
   rm -rf tmp
 
-
   rem begin install process
   cd ..
   cd curl
@@ -111,6 +110,7 @@ goto:eof
   src\curl -H "accept-language: en-US,en;q=0.9" http://example.com
   call :_testCommandSeparator
   src\curl -L http://example.com
+  call "%_cmdVar%" "type install_check.txt" _installCheck
   call :_testCommandSeparator
   goto _removeBatchhVariablesCurrent
  )
@@ -131,6 +131,10 @@ goto:eof
  set _configOption=
  set _curlDownload=
  rem move "install_check.txt" to mapped sandbox folder
- move "install_check.txt" "%~dp0install_check.txt"
+ if "%_installCheck%"=="install_check" (
+  make > error_log.log
+  move /Y error_log.log "%~dp0error_log.log"
+ )
+ move /Y "install_check.txt" "%~dp0install_check.txt"
  exit /b
 goto:eof
