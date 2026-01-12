@@ -76,7 +76,9 @@ goto:eof
    pause
   ) else (
    if EXIST "install_check.txt" (
-    call "%_cmdVar%" "type install_check.txt" _installCheck
+    if NOT DEFINED _installCheck (
+     call "%_cmdVar%" "type install_check.txt" _installCheck
+    )
    ) else (
     set "_installCheck=Fail"
    )
