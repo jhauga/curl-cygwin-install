@@ -1,30 +1,30 @@
-@echo off 
+@echo off
 REM instructLine
 ::  Output easy to read instructions to the terminal.
-::  useage: instructLine [1] [2] 
+::  useage: instructLine [1] [2]
 ::          [1] = [/B] [/D] [/H] [/I] [instruction]
 ::          [2] = [instruction] [heading]
 ::  Parameter              Description
-::   /B                     Blank line. 
+::   /B                     Blank line.
 ::   /D                     Dash line.
 ::   /H                     Heading
 ::   /I                     Instruction line.
 ::   instruction            Instructions for line.
 ::   heading                Heading for line.
 set "_helpLinesInstructLine=13"
- 
+
 :: Parameter variables.
 set "_parOneInstructLine=%~1"
 set "_checkParOneInstructLine=-%_parOneInstructLine%-"
 set "_parTwoInstructLine=%~2"
 set "_checkParTwoInstructLine=-%_parTwoInstructLine%-"
-set "_parThreeInstructLine=%~3"                                
+set "_parThreeInstructLine=%~3"
 set "_checkParThreeInstructLine=-%_parThreeInstructLine%-"
 
 if "%_parOneInstructLine%"=="-e" (
  rem Get the date with librarty getDate
  notepad++ "%~dp0%~n0.bat"
- goto _removeBatchVariablesInstructLine 
+ goto _removeBatchVariablesInstructLine
 )
 
 if "%_parOneInstructLine%"=="-h" (
@@ -96,13 +96,13 @@ goto:eof
   )
  set /A _starCount=!_length!-!_headingLength!"
  set "_star=*"
- 
+
  set "_outHeading="
  FOR /L %%i in (1,1,!_starCount!) do (
   set "_outHeading=!_outHeading!!_star!"
  )
  echo !_heading! !_outHeading!
- 
+
  endlocal
  goto _removeBatchVariablesInstructLine
 goto:eof
@@ -117,7 +117,7 @@ goto:eof
  )
  set /A _starCount=!_length!-!_instructLength!"
  set /A _totalLength=!_instructLength!+4"
- 
+
  set "_outInstruct= "
  FOR /L %%i in (1,1,!_starCount!) do (
   set "_outInstruct=!_outInstruct! "
@@ -127,7 +127,7 @@ goto:eof
  ) else (
   echo * !_instruct!
  )
- 
+
  endlocal
  goto _removeBatchVariablesInstructLine
 goto:eof
@@ -169,7 +169,7 @@ goto:eof
  set _checkParTwoInstructLine=
  set _parThreeInstructLine=
  set _checkParThreeInstructLine=
- 
+
  rem append new variables
  set _helpLinesInstructLine=
  set _getDateLib=

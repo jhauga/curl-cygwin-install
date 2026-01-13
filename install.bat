@@ -5,6 +5,7 @@ REM install
 cd /D "%~dp0"
 
 :: Parameters for running scheduled task
+set "_debugTaskRunInstall=0" & rem 0 (default), 1 install notepad++ with --task-run
 set "_parOneCurlCygwinInstall=%~1"
 set "_checkParOneCurlCygwinInstall=-%_parOneCurlCygwinInstall%-"
 
@@ -19,6 +20,8 @@ if "%_parOneCurlCygwinInstall%"=="--delay" (
   )
   if EXIST "sandbox\install_log.log" (
    move /Y "sandbox\install_log.log" "install_log.log" >nul 2>nul
+   rem safe assumption config_log.log also created
+   move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
    if EXIST "sandbox\curl" move /Y "sandbox\curl" curl >nul 2>nul
   )
   rmdir /S/Q sandbox >nul 2>nul
@@ -83,6 +86,10 @@ call :_startCygwinInstall 1 & goto:eof
   ) else (
    rem set Sandbox to shutdown
    sed -i -z -E "s/set \"_runAsScheduledTask=[0-9]/set \"_runAsScheduledTask=1/" sandbox\runInstall.bat
+   if "%_debugTaskRunInstall%"=="1" (
+    set "_installNotepad=yes"
+    call :_checkInstallNotepad 2
+   )
   )
   rem start sandbox, mapping clean sandbox folder
   if NOT EXIST "%~dp0runStartSandbox.wsb" (
@@ -189,10 +196,14 @@ goto:eof
   ) else (
    rem ensure curl was moved
    if EXIST "curl" (
-    call instructLine "Delete curl folder from Sandbox install?"
-    call instructLine " y or n "
-    call instructLine /B
-    set /P _delCurlInstall=
+    if "%_parOneCurlCygwinInstall%"=="--task-run" (
+     set _delCurlInstall=y
+    ) else (
+     call instructLine "Delete curl folder from Sandbox install?"
+     call instructLine " y or n "
+     call instructLine /B
+     set /P _delCurlInstall=
+    )
     call :_prepForNewRun --close & goto:eof
    ) else (
     rem remove variables for process

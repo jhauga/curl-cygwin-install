@@ -49,8 +49,7 @@ goto:eof
 
   curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
   cls
-  call "%_instructLine%" /H "SEARCH PACKAGES IN CYGWIN SELECT PACKAGES WINDOW:"
-  call "%_instructLine%" "IMPORTANT - check install from source."
+  call "%_instructLine%" /H "INSTALLING PACKAGES FROM CYGWIN:"
   call "%_instructLine%" /D
   call "%_instructLine%" /B
   call "%_instructLine%" " binutils"
@@ -62,7 +61,11 @@ goto:eof
   call "%_instructLine%" /B
 
   rem use condensed name to get packages
-  pkg --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+  if "%_debugForceFailSchedCong%"=="0" (
+   pkg --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+  ) else (
+   pkg --no-admin -q -P perl,make
+  )
 
   rem next part of process
   call %_parOneCurrent% 2 & goto:eof
@@ -90,16 +93,21 @@ goto:eof
   cd ..
   cd curl
   sh configure %_configOption%
-  make
-
+  if "%_debugForceFailSchedTask%"=="0" (
+   make
+   make 2> "%~dp0install_log.log"
+  ) else (
+   make docs
+   make docs 2> "%~dp0install_log.log"
+  )
+  rem if make completely failed, then reason for fail is on config
+  sh configure %_configOption% 2> "%~dp0config_log.log"
   rem next part of process
   call %_parOneCurrent% 3 & goto:eof
  )
  if "%1"=="3" (
   call "%_instructLine%" "Running Basic Commands to Test Install:"
-  echo install_check> "install_check.txt"
   src\curl --version
-  src\curl --version >> "install_check.txt"
   call :_testCommandSeparator
   src\curl --help
   call :_testCommandSeparator
@@ -110,8 +118,9 @@ goto:eof
   src\curl -H "accept-language: en-US,en;q=0.9" http://example.com
   call :_testCommandSeparator
   src\curl -L http://example.com
-  call "%_cmdVar%" "type install_check.txt" _installCheck
   call :_testCommandSeparator
+  echo install_check> "%~dp0install_check.txt"
+  src\curl -I http://example.com >> "%~dp0install_check.txt"
   goto _removeBatchhVariablesCurrent
  )
 goto:eof
@@ -130,9 +139,5 @@ goto:eof
  set _checkParTwoCurrent=
  set _configOption=
  set _curlDownload=
- rem move "install_check.txt" to mapped sandbox folder
- make > install_log.log
- move /Y install_log.log "%~dp0install_log.log"
- move /Y "install_check.txt" "%~dp0install_check.txt"
  exit /b
 goto:eof

@@ -11,9 +11,9 @@ set "_checkParOneCmdVar=-%_parOneCmdVar%-"
 set "_parTwoCmdVar=%~2"
 set "_checkParTwoCmdVar=-%_parTwoCmdVar%-"
 
-if "%_checkParOneCmdVar%"=="--" ( 
+if "%_checkParOneCmdVar%"=="--" (
  echo The syntax of the command %~n0 is incorrect.
- set _cmdVar=
+ set _commandVariable=
  goto _removeBatchVariablesCmdVar
 )
 call :_startCmdVar 1
@@ -27,9 +27,9 @@ goto:eof
    set _tmpFolderPresentCmdVar=1
   ) else (
    set _tmpFolderPresentCmdVar=0
-  ) 
+  )
   SetLocal EnableDelayedExpansion
-  
+
   goto _makeCmdVar
  )
 goto:eof
@@ -40,21 +40,21 @@ goto:eof
  )
  set _parOneCmdVar=%_parOneCmdVar:'="%
  call :_runCmdVar 1
-  
+
  FOR /F "tokens=*" %%A in (.tmp\%~n0\tempString.txt) DO set _tempCmdVar=!_tempCmdVar!%%A
  echo !_tempCmdVar!> .tmp\%~n0\tempOut.txt
- 
+
  endlocal
- 
+
  type .tmp\%~n0\tempOut.txt > .tmp\%~n0\readyString.txt
  call :_cleanCmdVar 2
  if NOT "%_checkParTwoCmdVar%"=="--" (
   FOR /F "tokens=*" %%A in (.tmp\%~n0\outString.txt) DO set %_parTwoCmdVar%=%%A
   call :_removeBatchVariablesCmdVar 1
  ) else (
-  FOR /F "tokens=*" %%A in (.tmp\%~n0\outString.txt) DO set _cmdVar=%%A
+  FOR /F "tokens=*" %%A in (.tmp\%~n0\outString.txt) DO set _commandVariable=%%A
   call :_removeBatchVariablesCmdVar 0
- )  
+ )
 goto:eof
 
 :_runCmdVar
@@ -65,11 +65,11 @@ goto:eof
 goto:eof
 
 :_cleanCmdVar
- if "%1"=="2" (    
+ if "%1"=="2" (
   copy /Y .tmp\%~n0\readyString.txt .tmp\%~n0\outString.txt >NUL
- ) else (  
+ ) else (
   type .tmp\%~n0\temp.txt > .tmp\%~n0\tempString.txt
- ) 
+ )
 goto:eof
 
 :: Remove batch variables.
@@ -80,11 +80,11 @@ goto:eof
  set _checkParOneCmdVar=
  set _parTwoCmdVar=
  set _checkParTwoCmdVar=
- 
+
  if "%1"=="1" (
-  set _cmdVar=
+  set _commandVariable=
  )
- 
+
  if EXIST .tmp\%~n0 (
   rmdir /S/Q .tmp\%~n0
  )
@@ -92,6 +92,6 @@ goto:eof
   rmdir .tmp >nul 2>nul
  )
  set _tmpFolderPresentCmdVar=
- 
+
  exit /b
-goto:eof 
+goto:eof

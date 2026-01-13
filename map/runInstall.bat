@@ -3,13 +3,16 @@ REM runInstall
 ::  Run install of winget, then install current script
 
 :: Debug variables - when debugging in sandbox change as needed.
-set "_debug=0"           & rem default (0) 1 run debugging in sandbox
-set "_debugStep=1"       & rem default (1) [1-9] call step in subroutine
-set "_debugRemoveDump=0" & rem default (0) 1 deletes dump
+set "_debug=0"                   & rem default (0) 1 run debugging in sandbox
+set "_debugStep=1"               & rem default (1) [1-9] call step in subroutine
+set "_debugRemoveDump=0"         & rem default (0) 1 deletes dump
+rem debugging for scheduled task, GOAL is mcp/agent that makes a local branch with proposed PR
+set "_debugRunAsScheduledTask=0" & rem 0 (default), 1 does not shutdown sandbox
+set "_debugForceFailSchedTask=0" & rem 0 (default), 1 install fails - use make docs
+set "_debugForceFailSchedCong=0" & rem 0 (default), 1 config fails  - skip dependencies
 
 :: This is to run the install process on a schedule that follows curl releases.
 set "_runAsScheduledTask=0"
-set "_debugRunAsScheduledTask=0"
 
 cd /D "%~dp0"
 
@@ -76,9 +79,7 @@ goto:eof
    pause
   ) else (
    if EXIST "install_check.txt" (
-    if NOT DEFINED _installCheck (
-     call "%_cmdVar%" "type install_check.txt" _installCheck
-    )
+    call "%_cmdVar%" "type install_check.txt" _installCheck
    ) else (
     set "_installCheck=Fail"
    )
@@ -89,15 +90,22 @@ goto:eof
   rem NOTE - check `curlInstructionWork.txt` with a delay of over an hour to ensure install completed
   if "%_installCheck%"=="install_check" (
    echo Fail> curlInstructionWork.txt
+  ) else if "%_installCheck%"=="Fail" (
+   echo Fail> curlInstructionWork.txt
   ) else (
    echo Pass> curlInstructionWork.txt
   )
   if "%_debugRunAsScheduledTask%"=="1" (
+   echo CHECK VARIABLE
+   echo:
+   echo ---%_installCheck%---
+   echo:
    call "%_instructLine%" "What Happened?"
    pause
    set _debugRunAsScheduledTask=
+  ) else (
+   shutdown /s /t 0
   )
-  shutdown /s /t 0
  )
  exit /b
 goto:eof
