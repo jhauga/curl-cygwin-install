@@ -28,7 +28,7 @@ if "%_debug%"=="1" (
  if "%_debugRemoveDump%"=="1" (
   if EXIST "dump" rmdir /S/Q dump
  )
- call current.bat ":_curl_cygwin" %_debugStep%
+ call current.bat ":_current_cygwin" %_debugStep%
  call :_cleanRunInstall 1 --curl
 ) else if NOT EXIST initalize.txt (
  rem ****************************************************************************
@@ -54,12 +54,12 @@ if "%_debug%"=="1" (
  call "%_instructLine%" /H "Setting Temp Path for Session:"
  call "%_instructLine%" /D
  call "%_instructLine%" /B
- set PATH=C:\cygwin64\bin\;%PATH%
+ set PATH=%PATH%;C:\cygwin64\bin\
 
  call "%_instructLine%" "Setting User path to include cygwin."
- setx PATH "C:\cygwin64\bin\;%PATH%"
+ setx PATH "%PATH%;C:\cygwin64\bin\"
 
- call current.bat ":_curl_cygwin"
+ call current.bat ":_current_cygwin"
  call :_cleanRunInstall 1
 )
 goto:eof

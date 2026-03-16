@@ -1,32 +1,59 @@
-@echo off & title "curl-cygwin-install"
+@echo off
 REM install
-::  Start installation check for curl install instructions of cygwin.
+::  Start installation check for a program install instructions of cygwin.
+::
+::  useage: install [1]
+::   [1] = [--task-run]
+::
+::  Options               Description
+::   --task-run            Pass if running with an automated task
+::
+::  Configuration
+::   - Change the variable `_programInstall` to the value of the program being installed
+::
+:: CONFIGURATION VARIABLE
+set "_programInstall=curl"
+
+:: Start install check.
+title "%_programInstall%-cygwin-install"
 
 cd /D "%~dp0"
 
 :: Parameters for running scheduled task
 set "_debugTaskRunInstall=0" & rem 0 (default), 1 install notepad++ with --task-run
-set "_parOneCurlCygwinInstall=%~1"
-set "_checkParOneCurlCygwinInstall=-%_parOneCurlCygwinInstall%-"
+set "_parOneInstall=%~1"
+set "_checkParOneInstall=-%_parOneInstall%-"
 
-:: Use `_parOneCurlCygwinInstall` with --delay for delayed task to check install "Pass" or "Fail"
-if "%_parOneCurlCygwinInstall%"=="--delay" (
+:: Use `_parOneInstall` with --delay for delayed task to check install "Pass" or "Fail"
+if "%_parOneInstall%"=="--delay" (
  taskkill /F /FI "imagename eq WindowsSandboxServer.exe"
  if EXIST "sandbox" (
-  if EXIST "sandbox\curlInstructionWork.txt" (
-   move /Y "sandbox\curlInstructionWork.txt" "curlInstructionWork.txt" >nul 2>nul
+  if EXIST "sandbox\%_programInstall%InstructionWork.txt" (
+   move /Y "sandbox\%_programInstall%InstructionWork.txt" "%_programInstall%InstructionWork.txt" >nul 2>nul
   ) else (
-   echo Fail> curlInstructionWork.txt
+   echo Fail> "%_programInstall%InstructionWork.txt"
   )
   if EXIST "sandbox\install_log.log" (
    move /Y "sandbox\install_log.log" "install_log.log" >nul 2>nul
-   rem safe assumption config_log.log also created
-   move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
-   if EXIST "sandbox\curl" move /Y "sandbox\curl" curl >nul 2>nul
   )
+  if EXIST "sandbox\config_log.log" (
+   move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
+  )
+  if EXIST "sandbox\site_download_uri_check.txt" (
+   move /Y "sandbox\site_download_uri_check.txt" site_download_uri_check.txt
+  )
+  if EXIST "sandbox\callClaude.txt" (
+   rem for claude or another automated script
+   move /Y "sandbox\callClaude.txt" callClaude.txt
+  )
+  if EXIST "sandbox\foobar.txt" (
+   rem for claude or another automated script if site and download links broken
+   move /Y "sandbox\foobar.txt" foobar.txt
+  )
+  if EXIST "sandbox\%_programInstall%" move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
-  echo Fail> curlInstructionWork.txt
+  echo Fail> "%_programInstall%InstructionWork.txt"
  )
  goto _removeBatchVariables
  goto:eof
@@ -34,13 +61,13 @@ if "%_parOneCurlCygwinInstall%"=="--delay" (
 :: For back-to-back calls of scheduled task to HOT-GLUE issue #1
 rem HOT-GLUE
 tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
-if "%_parOneCurlCygwinInstall%"=="--task-run" (
+if "%_parOneInstall%"=="--task-run" (
  if "%ERRORLEVEL%"=="0" (
   if NOT EXIST "sandbox\sandBoxRan.txt" (
    rem if run start sandbox, then sandBoxRan.txt was created
    taskkill /F /FI "imagename eq WindowsSandboxServer.exe"
    TIMEOUT /T 1 >nul 2>nul
-   "%~dp0install.bat" %_parOneCurlCygwinInstall%
+   "%~dp0install.bat" %_parOneInstall%
   )
   exit /b
   goto:eof
@@ -81,7 +108,7 @@ call :_startCygwinInstall 1 & goto:eof
   TIMEOUT /T 1 >nul 2>nul
   call instructLine /B
   rem check if installing notepadd++ for debug in sandbox
-  if NOT "%_parOneCurlCygwinInstall%"=="--task-run" (
+  if NOT "%_parOneInstall%"=="--task-run" (
    call :_checkInstallNotepad 1
   ) else (
    rem set Sandbox to shutdown
@@ -93,13 +120,13 @@ call :_startCygwinInstall 1 & goto:eof
   )
   rem start sandbox, mapping clean sandbox folder
   if NOT EXIST "%~dp0runStartSandbox.wsb" (
-   if "%_checkParOneCurlCygwinInstall%"=="--" (
+   if "%_checkParOneInstall%"=="--" (
     call instructLine "Something unexpected happened. Exiting batch."
     exit /b
    ) else (
     rem this is primarily for scheduled task as task will be terminated if this recurs over an hour
-    if "%_parOneCurlCygwinInstall%"=="--task-run" (
-     install.bat %_parOneCurlCygwinInstall%
+    if "%_parOneInstall%"=="--task-run" (
+     install.bat %_parOneInstall%
     )
     exit /b
    )
@@ -114,7 +141,7 @@ call :_startCygwinInstall 1 & goto:eof
  )
  if "%1"=="2" (
   rem output final notes on process
-  if NOT "%_parOneCurlCygwinInstall%"=="--task-run" (
+  if NOT "%_parOneInstall%"=="--task-run" (
    call instructLine /B
    call instructLine "Wait for Sandbox Process to Finish, then Press Enter to Close this Window:"
    call instructLine /B
@@ -141,7 +168,7 @@ call :_startCygwinInstall 1 & goto:eof
   rem ensure sandbox is not running
   tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
   if ERRORLEVEL 1 (
-   if EXIST "sandbox\curl" move /Y "sandbox\curl" curl >nul 2>nul
+   if EXIST "sandbox\%_programInstall%" move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
    call :_prepForNewRun 1 --close
   ) else (
    rem remove variables for process
@@ -172,7 +199,7 @@ goto:eof
     TIMEOUT /T 1 /NOBREAK >nul 2>nul
    )
 
-   if "%_parOneCurlCygwinInstall%"=="--task-run" (
+   if "%_parOneInstall%"=="--task-run" (
     rem use default
     set "_configOption=--without-ssl"
     call :_prepForNewRun 2 --set-default & goto:eof
@@ -194,12 +221,12 @@ goto:eof
     call :_prepForNewRun 2 & goto:eof
    )
   ) else (
-   rem ensure curl was moved
-   if EXIST "curl" (
-    if "%_parOneCurlCygwinInstall%"=="--task-run" (
+   rem ensure program folder was moved
+   if EXIST "%_programInstall%" (
+    if "%_parOneInstall%"=="--task-run" (
      set _delCurlInstall=y
     ) else (
-     call instructLine "Delete curl folder from Sandbox install?"
+     call instructLine "Delete %_programInstall% folder from Sandbox install?"
      call instructLine " y or n "
      call instructLine /B
      set /P _delCurlInstall=
@@ -238,7 +265,7 @@ goto:eof
  )
  if "%1"=="--close" (
   if /i "%_delCurlInstall%"=="y" (
-   rmdir /s/q curl
+   rmdir /s/q "%_programInstall%"
   )
   goto _removeBatchVariables
  )
@@ -267,8 +294,8 @@ goto:eof
  set _curDir=
  set _configOption=
  set _numberOfOptions=
- set _parOneCurlCygwinInstall=
- set _checkParOneCurlCygwinInstall=
+ set _parOneInstall=
+ set _checkParOneInstall=
  call instructLine "COMPLETE:"
  call instructLine /B
  call instructLine /D
