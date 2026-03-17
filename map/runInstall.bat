@@ -69,6 +69,7 @@ goto:eof
   cd /D "%~dp0"
   if EXIST "site_download_uri_check.txt" (
    call "%_cmdVar%" "type site_download_uri_check.txt" _statusLinkCheckRunInstall
+   del /Q site_download_uri_check.txt
   )
   if EXIST "initalize.txt" del /Q initalize.txt
   rm -rf https*

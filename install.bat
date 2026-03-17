@@ -41,9 +41,6 @@ if "%_parOneInstall%"=="--delay" (
   if EXIST "sandbox\config_log.log" (
    move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
   )
-  if EXIST "sandbox\site_download_uri_check.txt" (
-   move /Y "sandbox\site_download_uri_check.txt" site_download_uri_check.txt
-  )
   if EXIST "sandbox\callClaude.txt" (
    rem for claude or another automated script
    move /Y "sandbox\callClaude.txt" callClaude.txt
