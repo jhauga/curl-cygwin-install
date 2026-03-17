@@ -13,6 +13,8 @@ REM install
 ::
 :: CONFIGURATION VARIABLE
 set "_programInstall=curl"
+set "_useConfig=0"
+set "_defaultConfig=--without-ssl --disable-shared --enable-static"
 
 :: Start install check.
 title "%_programInstall%-cygwin-install"
@@ -45,10 +47,6 @@ if "%_parOneInstall%"=="--delay" (
   if EXIST "sandbox\callClaude.txt" (
    rem for claude or another automated script
    move /Y "sandbox\callClaude.txt" callClaude.txt
-  )
-  if EXIST "sandbox\foobar.txt" (
-   rem for claude or another automated script if site and download links broken
-   move /Y "sandbox\foobar.txt" foobar.txt
   )
   if EXIST "sandbox\%_programInstall%" move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
   rmdir /S/Q sandbox >nul 2>nul
@@ -96,7 +94,11 @@ call :_startCygwinInstall 1 & goto:eof
   TIMEOUT /T 1 /NOBREAK >nul 2>nul
 
   rem update with config option
-  sed -i -E "0,/(_configOption=).*/{s/(_configOption=).*/\1%_configOption%/}" sandbox\current.bat
+  if "%_useConfig%"=="1" (
+   rem use all configuration as set here
+   sed -i -E "0,/(_useConfigOptionCurrent=).*/{s/(_useConfigOptionCurrent=).*/\1%_useConfig%/}" sandbox\current.bat
+   sed -i -E "0,/(_configOptionCurrent=).*/{s/(_configOptionCurrent=).*/\1%_configOption%/}" sandbox\current.bat
+  )
   call instructLine /B
   call instructLine /H "INSTRUCTIONS:"
   TIMEOUT /T 1 >nul 2>nul
@@ -194,31 +196,41 @@ goto:eof
    xcopy /Y/E/I map sandbox >nul 2>nul
    copy /Y cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
    copy /Y instructLine.bat sandbox\instructLine.bat >nul 2>nul
+   
    rem ensure sandbox folder is fully written before proceeding
    if EXIST "sandbox\runInstall.bat" (
     TIMEOUT /T 1 /NOBREAK >nul 2>nul
    )
 
+   rem check context of this call, use `--task-run` for automation
    if "%_parOneInstall%"=="--task-run" (
-    rem use default
-    set "_configOption=--without-ssl"
-    call :_prepForNewRun 2 --set-default & goto:eof
+    if "%_useConfig%"=="1" (
+     rem use default
+     set "_configOption=%_defaultConfig%"
+     call :_prepForNewRun 2 --set-default & goto:eof
+    )
    ) else (
     rem if starting procedure, give option to specify config option
     rem select configuration option
-    call instructLine "Enter Corresponding DIGIT to Select Config Option:"
-    call instructLine /D
-    call instructLine "NOTE - press enter to use default --without-ssl option."
-    call instructLine /B
-    call instructLine /F config-options.txt
-    set /P _configOption=
-    call instructLine /B
+    if "%_useConfig%"=="1" (
+     if EXIST "config-options.txt" (
+      call instructLine "Enter Corresponding DIGIT to Select Config Option:"
+      call instructLine /D
+      call instructLine "NOTE - press enter to use default --without-ssl option."
+      call instructLine /B
+      call instructLine /F config-options.txt
+      set /P _configOption=
+      call instructLine /B
 
-    rem store number of lines in a variable
-    FOR /F %%A in ('find /v /c "" ^< config-options.txt') DO set _numberOfOptions=%%A
-
-    rem step 2 - allow batch to process variable change
-    call :_prepForNewRun 2 & goto:eof
+      rem store number of lines in a variable
+      FOR /F %%A in ('find /v /c "" ^< config-options.txt') DO set _numberOfOptions=%%A
+     ) else (
+      set _configOption=
+     )
+     rem step 2 - allow batch to process variable change
+     call :_prepForNewRun 2 & goto:eof
+    )
+    rem else do nothing
    )
   ) else (
    rem ensure program folder was moved
@@ -245,20 +257,26 @@ goto:eof
   ) else (
    rem define config option per input
    if NOT DEFINED _configOption (
-    set "_configOption=--without-ssl"
+    set "_configOption=%_defaultConfig%"
    ) else (
     rem ensure that correct digit was input
     echo %_configOption% | findstr /R [1-%_numberOfOptions%] >nul 2>nul
     if "%ERRORLEVEL%"=="0" (
      rem store appriopriate option in variable from input digit
      type config-options.txt | findstr "%_configOption%" | sed -E "s/^(%_configOption:~0,1%%)(.*)$/\2/" > _tmp-config-opt.txt
+
+     rem check if curl as `--disable-shared --enable-static` has to be appended
+     if "%_programInstall%"=="curl" (
+      rem ensure single space before `--`
+      echo  --disable-shared --enable-static>> _tmp-config-opt.txt
+     )
      call cmdVar "type _tmp-config-opt.txt" _configOption
 
      rem remove temp file
      del /Q _tmp-config-opt.txt >nul 2>nul
     ) else (
      call instructLine "Incorrect Input - Using Default --without-ssl"
-     set "_configOption=--without-ssl"
+     set "_configOption=%_defaultConfig%"
     )
    )
   )
@@ -291,6 +309,9 @@ goto:eof
  call instructLine /B
  call instructLine "Removing Variables from Process:"
  call instructLine /B
+ set _programInstall=
+ set _useConfig=
+ set _defaultConfig=
  set _curDir=
  set _configOption=
  set _numberOfOptions=

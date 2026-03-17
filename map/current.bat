@@ -5,23 +5,17 @@ REM current
 ::         this could be used with additional subroutines to
 ::         test different builds of curl.
 ::
-:: CONFIGURATION VARIABLES
+:: CONFIGURATION VARIABLES -----------------------------------------------------------------------------------------------------------------------
 set "_programCurrent=curl"
 set "_siteCurrent=https://curl.se/download.html"
 set "_uriCurrent=https://mirrors.kernel.org/sources.redhat.com/cygwin"
 set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl/"
 set _extractInstallUriCurrent=curl -s %_siteCurrent%  ^| findstr /R "%_siteUriCurrent%%_programCurrent%-[0-9].*src.tar.xz" ^| head -n 1
-set "_packageDependenciesCurrent=binutils,gcc-core,libpsl-devel,libtool,perl,make"
-set "_forceErrorPackageDependenciesCurrent=perl,make"
-set "_runTestCommandCurrent=src\curl"
-set "_useConfigOptionCurrent=1"
-set _configOptionCurrent=--without-ssl
-set "_useCustomMakeCurrent=0"
-set "_customMakeCurrent=make"
-rem Optional
-set "_customDebugMakeCurrent=0"
-set "_debugMakeCurrent=make docs"
+rem set _packageDependenciesCurrent=--no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+set _packageDependenciesCurrent=--no-admin -q -I --build-depends %_programCurrent% 
+set _forceErrorPackageDependenciesCurrent=--no-admin -q -P perl,make
 :: TEST COMMANDS
+set "_runTestCommandCurrent=src\curl"
 set _runTestCommandCurrentA=%_runTestCommandCurrent% --version
 set _runTestCommandCurrentB=%_runTestCommandCurrent% --help
 set _runTestCommandCurrentC=%_runTestCommandCurrent% http://example.com
@@ -29,6 +23,18 @@ set _runTestCommandCurrentD=%_runTestCommandCurrent% -I http://example.com
 set _runTestCommandCurrentE=%_runTestCommandCurrent% -H "accept-language: en-US,en;q=0.9" http://example.com
 set _runTestCommandCurrentF=%_runTestCommandCurrent% -L http://example.com
 set _runTestCommandCurrent_INSTALL_CHECK=%_runTestCommandCurrentD% ^>^> "%~dp0install_check.txt"
+:: OPTIONAL
+rem Optional if not using `sh configure`
+rem IMPORTANT - if not using, then ensure both `_useConfigOptionCurrent` and `_useConfig` in `install.bat` are 0
+rem IMPORTANT - don't duplicate "set _varName=" for the below to variables, sed is used to replace 1st instance in `install.bat`
+set _useConfigOptionCurrent=1
+set _configOptionCurrent=--without-ssl --disable-shared --enable-static
+set "_useCustomMakeCurrent=0"
+set "_customMakeCurrent=make"
+rem Completely Optional
+set "_customDebugMakeCurrent=0"
+set "_debugMakeCurrent=make docs"
+:: CONFIGURATION VARIABLES -----------------------------------------------------------------------------------------------------------------------
 
 :: Global variables.
 set "_parOneCurrent=%~1"
@@ -43,10 +49,22 @@ goto:eof
 
 :_startCurrent
  if "%1"=="1" (
-  rem if called form `linkCheck.bat` and download host links are broken
+  rem called from `linkCheck.bat` or end of `runInstall.bat`
   if "%_parOneCurrent%"=="--close-out" (
-   if "%_statusLinkCheckCurrent%"=="404" (
-    echo create:new-foobar-issue> "%~dp0foobar.txt"
+   rem don't overwrite error result
+   rem error results:
+   rem  - create:
+   rem    - failedInstall     = the install failt, but no broken links
+   rem    - missingSourceLink = the link from site is broken
+   rem  - check:
+   rem    - missingAllLinks        = unable test install, look into it and find download links
+   rem    - installCurrentCloseOut = unexpected in this script, look into it
+   if NOT EXIST "%~dp0callClaude.txt" (
+    if NOT "%_checkParTwoCurrent%"=="--" (
+     echo %_parTwoCurrent%> "%~dp0callClaude.txt"
+    ) else (
+     echo check:installCurrentCloseOut> "%~dp0callClaude.txt"
+    )
    )
    goto _removeBatchhVariablesCurrent
   ) else (
@@ -106,9 +124,9 @@ goto:eof
 
   rem use condensed name to get packages
   if "%_debugForceFailSchedCong%"=="0" (
-   pkg --no-admin -q -I -P %_packageDependenciesCurrent%
+   pkg %_packageDependenciesCurrent%
   ) else (
-   pkg --no-admin -q -P %_forceErrorPackageDependenciesCurrent%
+   pkg %_forceErrorPackageDependenciesCurrent%
   )
 
   rem next part of process
@@ -141,11 +159,14 @@ goto:eof
    rm -rf tmp
 
    rem begin install process
-   rem back in sandbox
-   cd ..
-   cd %_programCurrent%
+   rem in sandbox\curl
+   cd ..\%_programCurrent%
    if "%_useConfigOptionCurrent%"=="1" (
-    sh configure %_configOptionCurrent%
+    if "%_configOptionCurrent%"=="_none_used_" (
+     sh configure
+    ) else (
+     sh configure %_configOptionCurrent%
+    )
    )
    if "%_debugForceFailSchedTask%"=="0" (
     if "%_useCustomMakeCurrent%"=="1" (

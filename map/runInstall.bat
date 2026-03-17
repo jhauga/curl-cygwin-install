@@ -67,12 +67,17 @@ goto:eof
 :_cleanRunInstall
  if "%1"=="1" (
   cd /D "%~dp0"
+  if EXIST "site_download_uri_check.txt" (
+   call "%_cmdVar%" "type site_download_uri_check.txt" _statusLinkCheckRunInstall
+  )
   if EXIST "initalize.txt" del /Q initalize.txt
   rm -rf https*
   call "%_instructLine%" /H "Run Install Complete:"
   call "%_instructLine%" /B
+  
   rem delete HOT-GLUE sandbox check file
   if EXIST "%~dp0sandBoxRan.txt" del /Q "%~dp0sandBoxRan.txt" >nul 2>nul
+
   if "%_runAsScheduledTask%"=="0" (
    call "%_instructLine%" "What Happened?"
    call "%_instructLine%" /B
@@ -89,12 +94,29 @@ goto:eof
  if "%1"=="2" (
   rem NOTE - check `curlInstructionWork.txt` with a delay of over an hour to ensure install completed
   if "%_installCheck%"=="install_check" (
+   set "_installCheck=Fail"
    echo Fail> curlInstructionWork.txt
   ) else if "%_installCheck%"=="Fail" (
    echo Fail> curlInstructionWork.txt
   ) else (
+   set "_installCheck=Pass"
    echo Pass> curlInstructionWork.txt
   )
+  call :_cleanRunInstall 3 & goto:eof
+ )
+ if "%1"=="3" (
+  if "%_installCheck%"=="Fail" (
+   if "%_statusLinkCheckRunInstall%"=="404" (
+    call "%~dp0current.bat" --close-out "create:failedInstall-missingSourceLink"
+   ) else (
+    call "%~dp0current.bat" --close-out "create:failedInstall"
+   )
+  ) else if "%_statusLinkCheckRunInstall%"=="404" (
+   call "%~dp0current.bat" --close-out "create:missingSourceLink"
+  )
+  call :_cleanRunInstall --close-out & goto:eof
+ )
+ if "%1"=="--close-out" (
   if "%_debugRunAsScheduledTask%"=="1" (
    echo CHECK VARIABLE
    echo:

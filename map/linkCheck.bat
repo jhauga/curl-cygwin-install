@@ -109,8 +109,7 @@ goto:eof
   call :_linkUpdateCheck B 1 & goto:eof
  )
  if "%1"=="--call-claude" (
-  echo create:new-issue> "%~dp0callClaude.txt"
-  call "%~dp0current.bat" --close-out
+  call "%~dp0current.bat" --close-out "check:missingAllLinks"
   goto _removeBatchVariablesLinkCheck
  )
 goto:eof
