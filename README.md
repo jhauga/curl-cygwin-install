@@ -106,7 +106,9 @@ set PATH=%PATH%;C:\cygwin64\bin\
 #### III. Install Dependencies
 
 ```bash
+# This guarantees all dependencies are downloaded
 pkg --no-admin -q -I --build-depends curl
+# If dependencies are known, then run like this
 pkg --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
 ```
 
@@ -156,6 +158,8 @@ To do so edit the following:
   - Change `_extractInstallUriCurrent` to the command that will get the download link from site
   - Chnage `_packageDependenciesCurrent` to installation dependencies
   - Change `_forceErrorPackageDependenciesCurrent` to some dependencies (*to debug on-fail*)
+  - Change `_runAdditionalCheck` to 1 to run additional test, using `map\additionalCheck.bat`
+    - **NOTE** - `map\additionalCheck.bat` is completely as needed
   - **TEST COMMANDS**
     - Change `_runTestCommandCurrent` to the test command, or path to test command to use with the below configurred variaables i.e. `src\curl`
       - Change `_runTestCommandCurrentA` to `%_runTestCommandCurrent% --option` i.e. `%_runTestCommandCurrent% --help`

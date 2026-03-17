@@ -7,7 +7,7 @@ set "_debug=0"                   & rem default (0) 1 run debugging in sandbox
 set "_debugStep=1"               & rem default (1) [1-9] call step in subroutine
 set "_debugRemoveDump=0"         & rem default (0) 1 deletes dump
 rem debugging for scheduled task, GOAL is mcp/agent that makes a local branch with proposed PR
-set "_debugRunAsScheduledTask=0" & rem 0 (default), 1 does not shutdown sandbox
+set "_debugRunAsScheduledTask=1" & rem 0 (default), 1 does not shutdown sandbox
 set "_debugForceFailSchedTask=0" & rem 0 (default), 1 install fails - use make docs
 set "_debugForceFailSchedCong=0" & rem 0 (default), 1 config fails  - skip dependencies
 
@@ -118,6 +118,9 @@ goto:eof
   call :_cleanRunInstall --close-out & goto:eof
  )
  if "%1"=="--close-out" (
+  if "%_runAdditionalCheck%"=="1" (
+   call "%~dp0additionalCheck.bat"
+  )
   if "%_debugRunAsScheduledTask%"=="1" (
    echo CHECK VARIABLE
    echo:

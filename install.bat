@@ -3,10 +3,11 @@ REM install
 ::  Start installation check for a program install instructions of cygwin.
 ::
 ::  useage: install [1]
-::   [1] = [--task-run]
+::   [1] = [--task-run] [--delay]
 ::
 ::  Options               Description
-::   --task-run            Pass if running with an automated task
+::   --task-run            Pass if running with an automated task.
+::   --delay               Extract log data and results of the install.
 ::
 ::  Configuration
 ::   - Change the variable `_programInstall` to the value of the program being installed
@@ -16,15 +17,26 @@ set "_programInstall=curl"
 set "_useConfig=0"
 set "_defaultConfig=--without-ssl --disable-shared --enable-static"
 
+:: For makseshift help
+set "_helpLinesInstall=19"
+
 :: Start install check.
 title "%_programInstall%-cygwin-install"
-
 cd /D "%~dp0"
 
 :: Parameters for running scheduled task
 set "_debugTaskRunInstall=0" & rem 0 (default), 1 install notepad++ with --task-run
 set "_parOneInstall=%~1"
 set "_checkParOneInstall=-%_parOneInstall%-"
+
+:: Check for help option
+if "%_parOneInstall%"=="-h" (
+ call :_makeShiftHelpInstall 1 & goto:eof
+) else if "%_parOneInstall%"=="--help" (
+ call :_makeShiftHelpInstall 1 & goto:eof
+) else if "%_parOneInstall%"=="/?" (
+ call :_makeShiftHelpInstall 1 & goto:eof
+)
 
 :: Use `_parOneInstall` with --delay for delayed task to check install "Pass" or "Fail"
 if "%_parOneInstall%"=="--delay" (
@@ -44,6 +56,8 @@ if "%_parOneInstall%"=="--delay" (
   if EXIST "sandbox\callClaude.txt" (
    rem for claude or another automated script
    move /Y "sandbox\callClaude.txt" callClaude.txt
+   rem get more context for claude call
+   call map\current.bat %_parOneInstall%
   )
   if EXIST "sandbox\%_programInstall%" move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
   rmdir /S/Q sandbox >nul 2>nul
@@ -302,21 +316,33 @@ goto:eof
  )
 goto:eof
 
+:_makeShiftHelpInstall
+ if "%1"=="1" (
+  head -n %_helpLinesInstall% "%~dp0%~n0.bat" | sed 1d | sed -e "s/:://" -e "s/REM//" -E -e "s/^set/ set/"
+  set _helpLinesInstall=
+  goto _removeBatchVariables
+ )
+goto:eof
+
 :_removeBatchVariables
- call instructLine /B
- call instructLine "Removing Variables from Process:"
- call instructLine /B
+ if DEFINED _helpLinesInstall (
+  call instructLine /B
+  call instructLine "Removing Variables from Process:"
+  call instructLine /B
+  call instructLine "COMPLETE:"
+  call instructLine /B
+  call instructLine /D
+  call instructLine /D
+  call instructLine /B
+ )
  set _programInstall=
  set _useConfig=
  set _defaultConfig=
+ set _helpLinesInstall=
  set _curDir=
  set _configOption=
  set _numberOfOptions=
+ set _debugTaskRunInstall=
  set _parOneInstall=
  set _checkParOneInstall=
- call instructLine "COMPLETE:"
- call instructLine /B
- call instructLine /D
- call instructLine /D
- call instructLine /B
 goto:eof

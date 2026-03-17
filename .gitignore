@@ -8,3 +8,4 @@ curlInstructionWork.txt
 install_log.log 
 config_log.log
 callClaude.txt
+claude-context.yaml

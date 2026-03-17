@@ -11,8 +11,9 @@ set "_siteCurrent=https://curl.se/download.html"
 set "_uriCurrent=https://mirrors.kernel.org/sources.redhat.com/cygwin"
 set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl/"
 set _extractInstallUriCurrent=curl -s %_siteCurrent%  ^| findstr /R "%_siteUriCurrent%%_programCurrent%-[0-9].*src.tar.xz" ^| head -n 1
-rem set _packageDependenciesCurrent=--no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
-set _packageDependenciesCurrent=--no-admin -q -I --build-depends %_programCurrent% 
+rem comment out below if dependencies are not known as it guranatees all dependencies are downloaded
+rem set _packageDependenciesCurrent=--no-admin -q -I --build-depends %_programCurrent% 
+set _packageDependenciesCurrent=--no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
 set _forceErrorPackageDependenciesCurrent=--no-admin -q -P perl,make
 :: TEST COMMANDS
 set "_runTestCommandCurrent=src\curl"
@@ -34,6 +35,7 @@ set "_customMakeCurrent=make"
 rem Completely Optional
 set "_customDebugMakeCurrent=0"
 set "_debugMakeCurrent=make docs"
+set "_runAdditionalCheck=1" & rem set to 0 to not run post test
 :: CONFIGURATION VARIABLES -----------------------------------------------------------------------------------------------------------------------
 
 :: Global variables.
@@ -54,8 +56,9 @@ goto:eof
    rem don't overwrite error result
    rem error results:
    rem  - create:
-   rem    - failedInstall     = the install failt, but no broken links
-   rem    - missingSourceLink = the link from site is broken
+   rem    - failedInstall      = the install failt, but no broken links
+   rem    - missingSourceLink  = the link from site is broken
+   rem    - excludeConfigFlags = the hot-glue config options can be excluded
    rem  - check:
    rem    - missingAllLinks        = unable test install, look into it and find download links
    rem    - installCurrentCloseOut = unexpected in this script, look into it
@@ -66,6 +69,10 @@ goto:eof
      echo check:installCurrentCloseOut> "%~dp0callClaude.txt"
     )
    )
+   goto _removeBatchhVariablesCurrent
+  ) else if "%_parOneCurrent%"=="--delay" (
+   call "%~dp0claudeContext.bat" > claude-context.yaml
+   sed -i -E -e "s/^(.{1,}:) .(.*).$/\1 \2/" -E -e "s;^( {0,}[a-zA-Z]+:)(.);\1 \2;" -E -e "s/^( {1,}- [a-zA-Z]+:)(.)/\1 \2/" -E -e "s/^([a-zA-Z\-]+:)(.)/\1 \2/" -E -e "s/([a-zA-Z\-]+:) {2,}(.)/\1 \2/" claude-context.yaml
    goto _removeBatchhVariablesCurrent
   ) else (
    rem store most recent in variable.
@@ -208,8 +215,8 @@ goto:eof
   %_runTestCommandCurrentF%
   call :_testCommandSeparator
   echo install_check> "%~dp0install_check.txt"
-  rem HERE it is:
-  rem %_runTestCommandCurrent% -I http://example.com >> "%~dp0install_check.txt"
+  rem expands to:
+  rem curl -I http://example.com >> "%~dp0install_check.txt"
   %_runTestCommandCurrent_INSTALL_CHECK%
   goto _removeBatchhVariablesCurrent
  )
