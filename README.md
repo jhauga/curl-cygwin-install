@@ -142,19 +142,20 @@ To do so edit the following:
   - Change `_programInstall` to program name
   - Change `_useConfig` to 1 if the program requires a `sh configure` call before `make`
     - **NOTE** - mainly set configuration here if you want to use menu selection from `config-options.txt`
-    - **NOTE** - this will change the configuration in `map\current.bat` config variables
-    - Set to 0 if `map\current.bat` configuration is to be used
+    - **NOTE** - this will change the configuration in `map\setConfigVar.bat` config variables
+    - Set to 0 if `map\setConfigVar.bat` configuration is to be used
   - Change `_defaultConfig` to options to use for `sh configure` call
     - **NOTE** - set to `_none_used_` if only `sh configure` is used
 - **`config-options.txt`**
   - Change to viable configuration options if the install use a configure call
-- **`map\current.bat`**
+- **`map\setConfigVar.bat`**
   - Change `_programCurrent` to program name
   - Change `_siteCurrent` to the URL where instructions are
   - Chage `_uriCurrent` to the URI where of main path where download files are
   - Change `_extractInstallUriCurrent` to command to extract download URL
     - Around line 50 edit pipe as needed, below the comment is `rem CONFIG-EDIT--_extractInstallUriCurrent--CALL`
   - Change `_siteUriCurrent` to the URL that the site with instructions points download to
+  - Change `_sourceMarkerCurrent` to the ending characters and extension of source code download i.e. `src.tar.xz`
   - Change `_extractInstallUriCurrent` to the command that will get the download link from site
   - Chnage `_packageDependenciesCurrent` to installation dependencies
   - Change `_forceErrorPackageDependenciesCurrent` to some dependencies (*to debug on-fail*)
@@ -172,10 +173,10 @@ To do so edit the following:
   - **Optional**
     - If any configruation is needed then change `_useConfigOptionCurrent` to 1
       - **NOTE** - if `_useConfig` in `install.bat` is 1, then this will be changed from that
-      - **NOTE** - you'll probable want to check the config call in `map\current.bat`
+      - **NOTE** - you'll probable want to check the config call in `map\setConfigVar.bat`
       - Change `_configOptionCurrent` to configuration options
         - **NOTE** - set to `_none_used_` if only `sh confgirue` is used
     - Set `_useCustomMakeCurrent` to 1 if using anything other than `make` to install program
     - Change `_customMakeCurrent` to custom `make` call
-      - Set `_customDebugMakeCurrent` to 1 for debug make call
-      - Change `_debugMakeCurrent` to a debug `make` call
+      - Set `_useForceErrorCustomMakeCurrent` to 1 for debug make call
+      - Change `_forceErrorCustomMakeCurrent` to a debug `make` call

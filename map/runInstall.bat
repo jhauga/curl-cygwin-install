@@ -2,14 +2,12 @@
 REM runInstall
 ::  Run install of winget, then install current script
 
-:: Debug variables - when debugging in sandbox change as needed.
-set "_debug=0"                   & rem default (0) 1 run debugging in sandbox
-set "_debugStep=1"               & rem default (1) [1-9] call step in subroutine
-set "_debugRemoveDump=0"         & rem default (0) 1 deletes dump
-rem debugging for scheduled task, GOAL is mcp/agent that makes a local branch with proposed PR
-set "_debugRunAsScheduledTask=1" & rem 0 (default), 1 does not shutdown sandbox
-set "_debugForceFailSchedTask=0" & rem 0 (default), 1 install fails - use make docs
-set "_debugForceFailSchedCong=0" & rem 0 (default), 1 config fails  - skip dependencies
+:: Set the debug variables
+if NOT DEFINED _debug (
+ call "%~dp0setDebugVar.bat"
+ "%~dp0%~n0.bat"
+ exit /b
+)
 
 :: This is to run the install process on a schedule that follows curl releases.
 set "_runAsScheduledTask=0"
@@ -121,6 +119,8 @@ goto:eof
   if "%_runAdditionalCheck%"=="1" (
    call "%~dp0additionalCheck.bat"
   )
+  rem notify claude installation test complete
+  echo install complete> "%~dp0_installation_is_complete.txt"
   if "%_debugRunAsScheduledTask%"=="1" (
    echo CHECK VARIABLE
    echo:

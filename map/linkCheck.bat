@@ -23,7 +23,7 @@ goto:eof
 :_linkUpdateCheck
  if /i "%1"=="A" (
   if "%2"=="1a" (
-   curl -s %_downloadUrlPathLinkCheck% | findstr /R "%_programCurrent%-[0-9].*src.tar.xz" > checkSrcDownloads.txt
+   curl -s %_downloadUrlPathLinkCheck% | findstr /R "%_programCurrent%-[0-9].*%_sourceMarkerCurrent%" > checkSrcDownloads.txt
    type checkSrcDownloads.txt | findstr /R "%_programCurrent%-[0-9]+"
    call :_linkUpdateCheck --error-check A 1b & goto:eof
   )
@@ -36,7 +36,7 @@ goto:eof
  )
  if /i "%1"=="B" (
   if "%2"=="1" (
-   curl -s %_downloadUrlPathLinkCheck% | findstr /R "%_programCurrent%-[0-9].*src.tar.xz" | sed -E "s/^<a href=.(.{1,}).>[a-z]+.*$/\1/" > srcDownloads.txt
+   curl -s %_downloadUrlPathLinkCheck% | findstr /R "%_programCurrent%-[0-9].*%_sourceMarkerCurrent%" | sed -E "s/^<a href=.(.{1,}).>[a-z]+.*$/\1/" > srcDownloads.txt
    find /c /v "" srcDownloads.txt | sed -E -e "s/\-{1,} //" -E -e "s/^[a-zA-Z\.:]+ //" > countLines.txt
    call "%_cmdVar%" "type countLines.txt" _countLinesLinkCheck
    call :_linkUpdateCheck --constant 1 B & goto:eof
@@ -72,14 +72,15 @@ goto:eof
     call :_linkUpdateCheck --constant constant-error-check %3 & goto:eof
    ) else (
     rem ensure `_firstCallCurrent` is undefined
+    set _firstCallCurrent=
     echo -------------------------------------------------------------------------------------------
     echo:
     echo %_downloadUrlDownloadLinkCheck%
     echo:
     echo -------------------------------------------------------------------------------------------
     echo -------------------------------------------------------------------------------------------
-    set _firstCallCurrent=
     set "_current=%_downloadUrlDownloadLinkCheck%"
+    echo %_downloadUrlDownloadLinkCheck%> "%~dp0mirrorSiteDownloadLink.txt"
     call "%~dp0current.bat" ":_current_cygwin" 2
     goto _removeBatchVariablesLinkCheck
    )

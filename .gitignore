@@ -9,3 +9,8 @@ install_log.log
 config_log.log
 callClaude.txt
 claude-context.yaml
+_dump.txt
+curl_download_uri.txt
+mirrorSiteDownloadLink.txt
+pipedExtractInstallUriCurrent.txt
+statusLinkCheckCurrent.txt

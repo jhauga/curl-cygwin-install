@@ -53,13 +53,18 @@ if "%_parOneInstall%"=="--delay" (
   if EXIST "sandbox\config_log.log" (
    move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
   )
+  if EXIST "sandbox\%_programInstall%" (
+   move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
+  )
+  if EXIST "sandbox\mirrorSiteDownloadLink.txt" (
+   move /Y "sandbox\mirrorSiteDownloadLink.txt" "mirrorSiteDownloadLink.txt"
+  )
   if EXIST "sandbox\callClaude.txt" (
    rem for claude or another automated script
-   move /Y "sandbox\callClaude.txt" callClaude.txt
+   move /Y "sandbox\callClaude.txt" "callClaude.txt"
    rem get more context for claude call
-   call map\current.bat %_parOneInstall%
+   call map\current.bat --delay
   )
-  if EXIST "sandbox\%_programInstall%" move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
   echo Fail> "%_programInstall%InstructionWork.txt"
