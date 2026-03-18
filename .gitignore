@@ -15,4 +15,4 @@ mirrorSiteDownloadLink.txt
 pipedExtractInstallUriCurrent.txt
 statusLinkCheckCurrent.txt
 prompt.md.template
-claude\prompt.md
+claude/prompt.md
