@@ -1,11 +1,12 @@
 # `curl-cygwin-intall` Prompt
 
 You are attempting to build curl using Cygwin in a Windows 11 Sandbox.
+The results of the installation are in [`claude-context.yaml`](../claude-context.yaml).
 
-Additional, the terminal is Windows 11 DOS terminal. That cannot
+Additionally, the terminal is Windows 11 DOS terminal. That cannot
 change. Right now - in the Windows 11 terminal the install error is:
 
-### Windows 11 Install Error
+## Windows 11 Install Error
 
 ```bash
 ../libtool: eval: line 1890: syntax error near unexpected token `|'
@@ -14,9 +15,10 @@ make[2]: *** [Makefile:1893: libcurl.la] Error 2
 make[1]: *** [Makefile:1656: all] Error 2
 make: *** [Makefile:608: all-recursive] Error 1
 ```
+
 The configuration was run as:
 
-### Configuration
+## Configuration
 
 The results from running `sh configure --without-ssl` are:
 
@@ -24,7 +26,8 @@ The results from running `sh configure --without-ssl` are:
 configure: WARNING: Cannot find libraries for LDAP support: LDAP disabled
 configure: WARNING: Cannot find libidn2
 ```
-### Dependencies
+
+## Dependencies
 
 The dependencies are installed using Cygwin setup like `setup-x86_64.exe --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make`.
 All the installation tools are in the `map` folder. So for this task we want a
@@ -38,45 +41,46 @@ Resolve this error and successfully install curl on Windows 11 using:
 - Cygwin
 - `curl` from source
 
-To achieve the goal, follow the following process in 3 parts:
+To achieve the goal, follow the instructions in 3 parts:
+
 
 ### Part I - Test Installation Solution
 
-1. In `map/setConfigVar.bat` changes one or more of the below variables to the value that
+1. In `map/setConfigVar.bat` change one or more of the below variables to the value that
 will resolve the failed install:
 
-  - `_packageDependenciesCurrent`
-  - `_configOptionCurrent`
-  - `_customMakeCurrent`
+- `_packageDependenciesCurrent`
+- `--without-ssl`
+- `_customMakeCurrent`
 
-2. In the terminal run:
+2. In the Windows 11 DOS terminal run:
 
 ```bash
 install.bat --task-run
 ```
 
-3. After running that command, set a timer for every 10 minutes or 600 seconds that pass, run:
+3. After running that command, set a timer
+
+- For every 10 minutes or 600 seconds that pass, run `goto _checkIfComplete`:
 
 ```bash
-call :_setIII_checkIfComplete
-goto:eof
-:_setIII_checkIfComplete
- dir /b sandbox ^| find "_installation_is_complete.txt"
+:_checkIfComplete
+ ls -1 sandbox ^| find "_installation_is_complete.txt"
  rem when errorlevel is 0, or the file _installation_is_complete.txt exist, go to next step
- if "%ERRORLEVEL%"=="0" ( TIMEOUT /T 5 & goto _setVI_checkIfComplete & rem go to the next step or step 3 ) else ( TIMEOUT /T 600 & call :_checkIfComplete & goto:eof )
+ if "%ERRORLEVEL%"=="0" ( TIMEOUT /T 5 & goto _checkIfPass & rem go to the next step or step 3 ) else ( TIMEOUT /T 600 & call :_checkIfComplete & goto:eof )
 goto:eof
 ```
 
-3. When the installation is complete there will be a file name `sandbox/_installation_is_complete.txt`,
+3. When the installation is complete there will be a file name `sandbox/_installation_is_completed.txt`,
 when that is the case, run:
 
 ```bash
-:_setVI_checkIfComplete
- taskkill /F /FI "imagename eq WindowsSandboxServer.exe"
+:_checkIfPass
+ TASKKILL /F /FI "imagename eq WindowsSandboxServer.exe"
  TIMEOUT /T 10
  install.bat --delay
  type curlInstructionWork.txt | find "Pass"
- if "%ERRORLEVEL%"=="0" (echo pass> "claudeResponse.txt" & echo Go to next part of this process ) else (echo fail> "claudeResponse.txt" & echo Do nothing else, and end this process)
+ if "%ERRORLEVEL%"=="0" (echo pass> "%~dp0claudeResponse.txt" & echo Go to next part of this process ) else (echo fail> "%~dp0claudeResponse.txt" & echo Do nothing else, and end this process)
 goto:eof
 ```
 
@@ -84,26 +88,54 @@ goto:eof
 
 Make a branch in `D:\Users\johnh\Documents\GitHub\curl`. Call it "patch-curl-cygwin-install". In `patch-curl-cygwin-install` we want to:
 
-#### `git` Instructions
+#### `git` Instructions 1
 
+- `git checkout master`
 - `git checkout -b patch-curl-cygwin-install`
-- `git fetch upstream/master`
+- `git branch --set-upstream-to=upstream/master patch-curl-cygwin-install`
 - `git merge upstream/master`
+
+#### Edit Instructions
 
 Then make changes to:
 
 - `docs/INSTALL.md` with the bare minimum solution used to resolve the failed install from **Part I**.
 
+#### `git` Instructions 2
+
+- `git add .`
+- `git commit -m "INSTALL.md: update cygwin instructions"`
+
 ### Part III - Create a new GitHub Issue for Documentation Repo
 
 ### Make New issue Task
 
-In sibling repo `D:\Users\johnh\Documents\GitHub\curl\..\curl-www` we want to make an issue. Not a pull request. Instead, dump the issue data in a file.
-Call it "_proposed_issue_data.md". Write short issue covering the imperatives:
+In sibling repo `D:\Users\johnh\Documents\GitHub\curl-www` we want to make an issue. Not a pull request. Instead, dump the issue data in a file.
+Call it "_PROPOSED_ISSUE_DATA.md". Write short issue covering the imperatives:
 
 - Repo Page: `_download.html`
 - Website Page: `https://curl.se/download.html`
   - This webpage has the broken link to download the source code package for the install
 - Proposed Link: `https://mirrors.kernel.org/sources.redhat.com/cygwin/src/release/curl/curl-8.19.0-1-src.tar.xz`
 
+## Rules
+
+### Failed Install Rules
+
+- **DO** run `git commit -m "INSTALL.md: update cygwin instructions"`
+  - **DO NOT** run `git push`
+- **DO** create a new branch for this task calle `patch-curl-cygwin-install`
+  - **DO NOT** edit any existing `git` branches
+- **DO** make edit to the file(s) `docs\INSTALL.md`
+  - **DO NOT** edit any other file(s)
+
+### Missing Source Link Rules
+
+- **DO** create a file with data to use for a new issue
+  - **DO NOT** use `git` or `gh` to create or manage an issue
+- **DO** create a new issue for the file(s) `_download.html`
+  - **DO NOT** create an issue regarding other files
+ 
+## Closing Note
+ 
 This use to work with the link on the https://curl.se/download.html, but after most recent curl version change, this is not working and the link is broken.

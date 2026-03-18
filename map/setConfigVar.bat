@@ -33,3 +33,4 @@ set "_customMakeCurrent=make"
 set "_useForceErrorCustomMakeCurrent=0"
 set "_forceErrorCustomMakeCurrent=make docs"
 set "_runAdditionalCheck=0" & rem set to 0 to not run post test
+set "_additionalCheckConfigFlag=--without-ssl" & rem used in additionalCheck.bat, and as needed

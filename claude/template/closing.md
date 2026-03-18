@@ -1,3 +1,0 @@
---:_both_~This use to work with the link on the SITE_LINK, but after most recent _programCurrent version change, this is not working and the link is broken.
---:_install_~This use to work, but after most recent _programCurrent version change, this is not working.
---:_docLink_~The use to work, but the download links are not available.

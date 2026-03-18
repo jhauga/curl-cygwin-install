@@ -4,6 +4,7 @@ REM callClaude
 
 :: Debug variables
 set "_debugCallClaude=1" & rem 0 (default), 1 does not call claude-code
+set "_resetCallClaude=create:failedInstall-missingSourceLink" & rem as needed, only used if `_debugCallClaude` is 1
 
 :: Start call
 cd "%~dp0.."
@@ -28,7 +29,6 @@ goto:eof
    type install_log.log >> claude\prompt.md 
    echo ```>> claude\prompt.md
   )
-
   if "%_useConfigOptionCurrent%"=="1" (
    type "%~dp0template\create-useConfigOptionCurrent.md" >> claude\prompt.md
    type config_log.log >> claude\prompt.md
@@ -36,34 +36,85 @@ goto:eof
   )
   if DEFINED _installDependencies (
    type "%~dp0template\create-dependencies.md" >> claude\prompt.md
-  )
-  type "%~dp0template\create-constant_create.md" >> claude\prompt.md
+  )  
   if "%_create_failedInstall%"=="1" (
+   type "%~dp0template\create-goal_i.md" >> claude\prompt.md
    type "%~dp0template\create-failedInstall_ii.md" >> claude\prompt.md
-  )
-  if "%_create_missingSourceLink%"=="1" (
+   if "%_create_missingSourceLink%"=="1" (
+    type "%~dp0template\create-missingSourceLink.md" >> claude\prompt.md
+   )
+  ) else if "%_create_missingSourceLink%"=="1" (
+   rem missing link and exclude config can be independent and need change
+   type "%~dp0template\create-goal_ii.md" >> claude\prompt.md
    type "%~dp0template\create-missingSourceLink.md" >> claude\prompt.md
+   sed -i -E "s/^(### Part) I{1,} (-.*)$/\1 I \2/" claude\prompt.md
+   if "%_create_excludeConfigFlags%"=="1" (
+    type "%~dp0template\create-excludeConfigFlags.md" >> claude\prompt.md
+   )
+  ) else (
+   rem single point in setVar shoule have resolved need for else if
+   type "%~dp0template\create-goal_ii.md" >> claude\prompt.md
+   type "%~dp0template\create-excludeConfigFlags.md" >> claude\prompt.md
+   sed -i -E "s/^(### Part) I{1,} (-.*)$/\1 I \2/" claude\prompt.md   
   )
+  
   echo ## Rules>> claude\prompt.md
   if "%_create_failedInstall%"=="1" (
    type "%~dp0template\rules-failedInstall.md" >> claude\prompt.md
-  )
-  if "%_create_missingSourceLink%"=="1" (
+   rem this could apply to both exclude and failed install
+   if "%_create_missingSourceLink%"=="1" (
+    type "%~dp0template\rules-missingSourceLink.md" >> claude\prompt.md
+   )
+  ) else if "%_create_missingSourceLink%"=="1" (
    type "%~dp0template\rules-missingSourceLink.md" >> claude\prompt.md
+   if "%_create_excludeConfigFlags%"=="1" (
+    type "%~dp0template\rules-failedInstall.md" >> claude\prompt.md
+    sed -i "s/Failed Install Rules/Exclude Config Flag Rules/g" claude\prompt.md
+   )
+  ) else (
+   type "%~dp0template\rules-failedInstall.md" >> claude\prompt.md
   )
+  echo: >>claude\prompt.md
   echo ## Closing Note>> claude\prompt.md
+  echo: >>claude\prompt.md
   if "%_callClaude%"=="create:failedInstall-missingSourceLink" (
-   type "%~dp0template\closing-both.md" >> claude\prompt.md
+   type "%~dp0template\closing-failedInstall-missingSourceLink.md" >> claude\prompt.md
   ) else if "%_callClaude%"=="create:failedInstall" (
-   type "%~dp0template\closing-install.md" >> claude\prompt.md
+   type "%~dp0template\closing-failedInstall.md" >> claude\prompt.md
   ) else if "%_callClaude%"=="create:missingSourceLink" (
-   type "%~dp0template\closing-docLink.md" >> claude\prompt.md
+   type "%~dp0template\closing-missingSourceLink.md" >> claude\prompt.md
+  ) else (
+   rem these are independent, above have own closing sentence
+   if "%_create_excludeConfigFlags%"=="1" (
+    type "%~dp0template\closing-excludeConfigFlags.md" >> claude\prompt.md
+    if "%_create_missingSourceLink%"=="1" (
+     type "%~dp0template\closing-missingSourceLink.md" >> claude\prompt.md
+     sed -i "s/This works, but /Additionally, /" claude\prompt.md
+    )
+   ) else (
+    if "%_create_missingSourceLink%"=="1" (
+     type "%~dp0template\closing-missingSourceLink.md" >> claude\prompt.md
+    )
+   )
   )
-  goto _updateTemplate
  ) else (
-  echo update needed
-  exit /b
+  if "%_check_missingAllLinks%"=="1" (
+   type "%~dp0template\check-missingAllLinks.md" >> claude\prompt.md
+  )
+  if "%_check_installCurrentCloseOut%"=="1" (
+   type "%~dp0template\check-installCurrentCloseOut.md" >> claude\prompt.md
+  )
+  echo: >>claude\prompt.md
+  echo ## Closing Note>> claude\prompt.md
+  echo: >>claude\prompt.md
+  if "%_check_missingAllLinks%"=="1" (
+   type "%~dp0template\closing-missingAllLinks.md" >> claude\prompt.md
+  )
+  if "%_check_installCurrentCloseOut%"=="1" (
+   type "%~dp0template\closing-installCurrentCloseOut.md" >> claude\prompt.md
+  )
  )
+ goto _updateTemplate
 goto:eof
 
 :_updateTemplate
@@ -76,7 +127,7 @@ goto:eof
  sed -i "s;_localRepoSetEnvironment;%_localRepoSetEnvironment%;g" claude\prompt.md
  sed -i "s/_branchNameSetEnvironment/%_branchNameSetEnvironment%/g" claude\prompt.md
  sed -i "s;_localWebsiteRepoSetEnvironment;%_localWebsiteRepoSetEnvironment%;g" claude\prompt.md
- sed -i "s/_downloadRepoPageEnvironment/%_downloadRepoPageEnvironment%/g" claude\prompt.md
+ sed -i "s/_localWebsiteRepoEditFilesEnvironment/%_localWebsiteRepoEditFilesEnvironment%/g" claude\prompt.md
  sed -i "s;_siteCurrent;%_siteCurrent%;g" claude\prompt.md
  sed -i "s;_mirrorSiteDownloadLink;%_mirrorSiteDownloadLink%;g" claude\prompt.md
  sed -i "s;_uriCurrent;%_uriCurrent%;g" claude\prompt.md
@@ -86,10 +137,13 @@ goto:eof
  sed -i "s/_commitMessageSetEnvironment/%_commitMessageSetEnvironment%/g" claude\prompt.md
  sed -i "s/_localWebsiteRepoEditFilesEnvironment/%_localWebsiteRepoEditFilesEnvironment%/g" claude\prompt.md
  sed -i "s/_localRepoEditFilesEnvironment/%_localRepoEditFilesEnvironment%/g" claude\prompt.md
+ sed -i "s/_additionalCheckConfigFlag/%_additionalCheckConfigFlag%/g" claude\prompt.md
+ sed -i "s/_configOptionCurrent/%_configOptionCurrent%/g" claude\prompt.md
 
  if "%_debugCallClaude%"=="1" (
-  type claude\prompt.md
+  echo DONE:
+  echo %_resetCallClaude%>callClaude.txt
  ) else (
-  echo Update needed
+  claude --print < claude\prompt.md > call-claude.log
  )
 goto:eof

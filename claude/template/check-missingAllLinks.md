@@ -1,3 +1,4 @@
+
 The links you use to test the install are all missing. They are:
 
 ## Errors to Resolve
@@ -30,9 +31,9 @@ Depending on the results of the new download link seary, follow one of the instr
 ### Cygwin `_programCurrent` New Download Link
 
 In sibling repo `_localWebsiteRepoSetEnvironment\..` we want to make an issue. Not a pull request. Instead, dump the issue data in a file.
-Call it "_proposed_issue_data.md". Write short issue covering the imperatives:
+Call it "_PROPOSED_ISSUE_DATA.md". Write short issue covering the imperatives:
 
-- Repo Page: `_downloadRepoPageEnvironment`
+- Repo Page: `_localWebsiteRepoEditFilesEnvironment`
 - Website Page: `_siteCurrent`
   - This webpage has the broken link to download the source code package for the install
 - Proposed Link:
@@ -41,9 +42,9 @@ Call it "_proposed_issue_data.md". Write short issue covering the imperatives:
 ### Cygwin `_programCurrent` Source Code Download Missing
 
 In sibling repo `_localWebsiteRepoSetEnvironment\..` we want to make an issue. Not a pull request. Instead, dump the issue data in a file.
-Call it "_proposed_issue_data.md". Write short issue covering the imperatives:
+Call it "_PROPOSED_ISSUE_DATA.md". Write short issue covering the imperatives:
 
-- Repo Page: `_downloadRepoPageEnvironment`
+- Repo Page: `_localWebsiteRepoEditFilesEnvironment`
 - Website Page: `_siteCurrent`
   - This webpage has the broken link to download the source code package for the install
 

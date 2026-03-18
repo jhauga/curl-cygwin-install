@@ -2,24 +2,46 @@
 REM setVar
 ::  When used with claude-code
 
-if EXIST "mirrorSiteDownloadLink.txt" (
- call cmdVar.bat "type mirrorSiteDownloadLink.txt" _mirrorSiteDownloadLink
-)
-if EXIST "callClaude.txt" (
- call cmdVar.bat "type callClaude.txt" _callClaude
- type callClaude.txt | find "create:" >nul 2>nul
- call :_errorCheck 1 create initial
+:: Debug variables, use to force set all claude variables.
+:: Debug values for `_debugCallClaude`
+::  create:failedInstall-missingSourceLink
+::  create:failedInstall
+::  create:missingSourceLink
+::  check:missingAllLinks
+::  check:installCurrentCloseOut
+set "_debugSetVar=0" & rem 0 (default), 1 sets debug mode
+set "_debug_callClaude=check:missingAllLinks" & rem as needed, requires _debugSetVar be 1
+set "_debug__createStepsCallClaude=1" & rem 0 or 1; as needed, requires _debugSetVar be 1
+set "_debug_create=0" & rem 0 or 1; as needed, requires _debugSetVar be 1
+set "_debug_check=1" & rem 0 or 1; as needed, requires _debugSetVar be 1
+set "_debug_create_failedInstall=0" & rem as needed, requires _debugSetVar be 1
+set "_debug_create_missingSourceLink=0" & rem as needed, requires _debugSetVar be 1
+set "_debug_create_excludeConfigFlags=1" & rem as needed, requires _debugSetVar be 1
+set "_debug_check_missingAllLinks=1" & rem as needed, requires _debugSetVar be 1
+set "_debug_check_installCurrentCloseOut=1" & rem as needed, requires _debugSetVar be 1
+
+if "%_debugSetVar%"=="1" (
+ call :_setDebugVar 1
 ) else (
- call :_errorCheck --single-point & goto:eof
+ if EXIST "mirrorSiteDownloadLink.txt" (
+  call cmdVar.bat "type mirrorSiteDownloadLink.txt" _mirrorSiteDownloadLink
+ )
+ if EXIST "callClaude.txt" (
+  call cmdVar.bat "type callClaude.txt" _callClaude
+  type callClaude.txt | find "create:" >nul 2>nul
+  call :_errorCheck 1 create initial
+ ) else (
+  call :_errorCheck --single-point & goto:eof
+ )
+ if EXIST "claude-context.yaml" (
+  call cmdVar.bat "yq ".configure_call" claude-context.yaml" _congigureCallClaude
+  call cmdVar.bat "yq ".install_dependencies.command" claude-context.yaml" _installDependencies
+ ) else (
+  call :_errorCheck --single-point & goto:eof
+ )
+ set _preVar=
+ set _varName=
 )
-if EXIST "claude-context.yaml" (
- call cmdVar.bat "yq ".configure_call" claude-context.yaml" _congigureCallClaude
- call cmdVar.bat "yq ".install_dependencies.command" claude-context.yaml" _installDependencies
-) else (
- call :_errorCheck --single-point & goto:eof
-)
-set _preVar=
-set _varName=
 goto:eof
 
 :_errorCheck
@@ -82,7 +104,11 @@ goto:eof
      )
     ) else (
      if "%_create_missingSourceLink%"=="1" (
-      set "_createStepsCallClaude=1"
+      if "%_creaate_excludeConfigFlags%"=="1" (
+       set "_createStepsCallClaude=2"
+      ) else (
+       set "_createStepsCallClaude=1"
+      )
      ) else (
       if "%_creaate_excludeConfigFlags%"=="1" (
        set "_createStepsCallClaude=1"
@@ -110,5 +136,24 @@ goto:eof
  if "%1"=="--single-point" (
   echo %1> callClaude.txt
   call cmdVar.bat "type callClaude.txt" _callClaude
+ )
+goto:eof
+
+:_setDebugVar
+ if "%1"=="1" (
+  set "_callClaude=%_debug_callClaude%"
+  set "_createStepsCallClaude=%_debug__createStepsCallClaude%"
+  if "%_debug_create%"=="1" (
+   set "_createInitial=1"
+   set "_checkInitial=0"
+   set "_create_failedInstall=%_debug_create_failedInstall%"
+   set "_create_missingSourceLink=%_debug_create_missingSourceLink%"
+   set "_create_excludeConfigFlags=%_debug_create_excludeConfigFlags%"
+  ) else (
+   set "_createInitial=0"
+   set "_checkInitial=1"
+   set "_check_missingAllLinks=%_debug_check_missingAllLinks%"
+   set "_check_installCurrentCloseOut=%_debug_check_installCurrentCloseOut%"
+  )
  )
 goto:eof

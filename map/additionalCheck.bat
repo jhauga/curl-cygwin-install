@@ -7,7 +7,7 @@ REM additionalCheck
 
 cd "%~dp0curl"
 make clean
-sh configure --without-ssl
+sh configure %_additionalCheckConfigFlag%
 make
 
 :: This does the check

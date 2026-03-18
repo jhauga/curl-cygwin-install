@@ -9,4 +9,5 @@ Resolve this error and successfully install _programCurrent on _osSetEnvironment
 - Cygwin
 - `_programCurrent` from source
 
-To achieve the goal, follow the following process in _createStepsCallClaude parts:
+To achieve the goal, follow the instructions in _createStepsCallClaude parts:
+
