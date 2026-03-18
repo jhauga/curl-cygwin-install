@@ -18,6 +18,8 @@ if EXIST "claude-context.yaml" (
 ) else (
  call :_errorCheck --single-point & goto:eof
 )
+set _preVar=
+set _varName=
 goto:eof
 
 :_errorCheck
@@ -55,9 +57,13 @@ goto:eof
      call :_errorCheck 1 %2 missingAllLinks & goto:eof
     )
    ) else (
-    rem run check sequence
-    type callClaude.txt | find "check:" >nul 2>nul
-    call :_errorCheck 1 check initial & goto:eof
+    if "%2"=="check" (
+     call :_errorCheck --single-point & goto:eof
+    ) else (
+     rem run check sequence
+     type callClaude.txt | find "check:" >nul 2>nul
+     call :_errorCheck 1 check initial & goto:eof
+    )
    )
   ) else (
    set "_%_preVar%_%_varName%=%4"
@@ -102,7 +108,7 @@ goto:eof
   ) 
  )
  if "%1"=="--single-point" (
-  echo check:installCurrentCloseOut> callClaude.txt
+  echo %1> callClaude.txt
   call cmdVar.bat "type callClaude.txt" _callClaude
  )
 goto:eof

@@ -1,9 +1,18 @@
-@echo off 
+@echo off
+REM setEnvironment
+::  Set variables relevant to the Operating System, local repo, and local documentation repo.
  
-set "_curDirSetEnvironment=%~dp0"
+:: OS and terminal
 set "_osSetEnvironment=Windows 11"
 set "_terminalSetEnvironment=DOS terminal"
-set "_localRepoSetEnvironment=D:\Users\johnh\Documents\GitHub\curl"
+
+:: Directory and files
+set "_curDirSetEnvironment=%~dp0"
+set "_localRepoSetEnvironment=D:\\Users\\johnh\\Documents\\GitHub\\curl"
+set "_localRepoEditFilesEnvironment=docs\\INSTALL.md"
+set "_localWebsiteRepoSetEnvironment=D:\\Users\\johnh\\Documents\\GitHub\\curl-www"
+set "_localWebsiteRepoEditFilesEnvironment=_download.html"
+
+:: `git` related
 set "_branchNameSetEnvironment=patch-curl-cygwin-install"
-set "_localWebsiteRepoSetEnvironment=%_localRepoSetEnvironment%\..\curl-www"
-set "_downloadRepoPageEnvironment=_download.html"
+set "_commitMessageSetEnvironment=INSTALL.md: update cygwin instructions"
