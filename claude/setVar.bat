@@ -28,13 +28,13 @@ goto:eof
    if "%ERRORLEVEL%"=="0" (
     call :_errorCheck 2 %2 %3 1 & goto:eof
    ) else (
-    call :_errorCheck 2 %2 %3 0
+    call :_errorCheck 2 %2 %3 0 & goto:eof
    )
   ) else if "%2"=="check" (
    if "%ERRORLEVEL%"=="0" (
-    call :_errorCheck 2 %2 %3 1
+    call :_errorCheck 2 %2 %3 1 & goto:eof
    ) else (
-    call :_errorCheck 2 %2 %3 0
+    call :_errorCheck 2 %2 %3 0 & goto:eof
    )
   ) else (
    call :_errorCheck --single-point & goto:eof
@@ -60,7 +60,7 @@ goto:eof
     call :_errorCheck 1 check initial & goto:eof
    )
   ) else (
-   set "_%_varName%_%_preVar%=%4"
+   set "_%_preVar%_%_varName%=%4"
    if "%3"=="failedInstall" (
     type callClaude.txt | find "missingSourceLink" >nul 2>nul
     call :_errorCheck 1 %2 missingSourceLink & goto:eof
@@ -91,8 +91,10 @@ goto:eof
    ) else if "%3"=="installCurrentCloseOut" (
     if "%_check_missingAllLinks%"=="1" (
      set "_createStepsCallClaude=1"
-    ) else if "%_check_installCurrentCloseOut"=="1" () else (
-
+    ) else if "%_check_installCurrentCloseOut"=="1" (
+     set "_createStepsCallClaude=1"
+    ) else (
+     call :_errorCheck --single-point & goto:eof
     )
    ) else (
     call :_errorCheck --single-point & goto:eof
