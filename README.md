@@ -6,7 +6,7 @@ Support repository for:
 - `curl` pull request [#20995](https://github.com/curl/curl/pull/20995)
 
 
-This may **possibly** be edidted to and run to check different [**Cygwin**](https://www.cygwin.com/) program installations. To do so see [specify installation to check](#specify-installation-to-check).
+This may **possibly** be edidted to run and check different [**Cygwin**](https://www.cygwin.com/) program installations. To do so see [specify installation to check](#specify-installation-to-check).
 
 ## Instructions for Use:
 
