@@ -26,11 +26,11 @@ rem Optional if not using `sh configure`
 rem IMPORTANT - if not using, then ensure both `_useConfigOptionCurrent` and `_useConfig` in `install.bat` are 0
 rem IMPORTANT - don't duplicate "set _varName=" for the below to variables, sed is used to replace 1st instance in `install.bat`
 set _useConfigOptionCurrent=1
-set _configOptionCurrent=--without-ssl
+set _configOptionCurrent=--without-ssl --disable-shared
 set _forceErrorConfigOptionCurrent=--without-ssl
 set "_useCustomMakeCurrent=0"
 set "_customMakeCurrent=make"
 set "_useForceErrorCustomMakeCurrent=0"
 set "_forceErrorCustomMakeCurrent=make docs"
-set "_runAdditionalCheck=0" & rem set to 0 to not run post test
+set "_runAdditionalCheck=1" & rem set to 0 to not run post test
 set "_additionalCheckConfigFlag=--without-ssl" & rem used in additionalCheck.bat, and as needed

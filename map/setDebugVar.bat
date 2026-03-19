@@ -8,7 +8,7 @@ set "_debugStep=1"               & rem default (1) [1-9] call step in subroutine
 set "_debugRemoveDump=0"         & rem default (0) 1 deletes dump
 
 : Debug task schedule actions.
-set "_debugRunAsScheduledTask=1" & rem 0 (default), 1 does not shutdown sandbox
+set "_debugRunAsScheduledTask=0" & rem 0 (default), 1 does not shutdown sandbox
 
 :: Debug failure actions.
 set "_debugForceErrorSchedCong=0" & rem 0 (default), 1 fail with dependencies

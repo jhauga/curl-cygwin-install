@@ -1,6 +1,10 @@
 # curl-cygwin-install
 
-Support repository for [curl](https://github.com/curl/curl) pull request [#17485](https://github.com/curl/curl/pull/17485).
+Support repository for:
+
+- `curl` pull request [#17485](https://github.com/curl/curl/pull/17485)
+- `curl` pull request [#20995](https://github.com/curl/curl/pull/20995)
+
 
 This may **possibly** be edidted to and run to check different [**Cygwin**](https://www.cygwin.com/) program installations. To do so see [specify installation to check](#specify-installation-to-check).
 
@@ -49,6 +53,19 @@ file `curlInstructionWork.txt` will be placed from `sandbox` folder, or created;
 if the process failed altogether. It will simply say if the install was a "Pass",
 or a "Fail".
 
+#### Automated Install Error Resolution
+
+In a scheduled task add `call claude\callClaude.bat` at the end to have Claude code look into the error relative to the error context after `install --delay` has been run.
+
+> [!NOTE]
+> Ensure `claude\setEnvironment.bat` have been updated accordingly.
+
+##### Last Line of Scheduled Script
+
+```bash
+call claude\callClaude.bat
+```
+
 ### Manual Run
 
 1. Clone or download repo:
@@ -74,8 +91,6 @@ git clone https://github.com/jhauga/curl-cygwin-install.git
 After the installation is complete temporary files are cleared, leaving the
 install folder of curl in the Sandbox folder where this tool was mapped to.
 Delete/keep files after install test as needed.
-
-
 
 ### Bare Run
 
