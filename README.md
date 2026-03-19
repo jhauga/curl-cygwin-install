@@ -142,7 +142,7 @@ tar -xJf curl.tar.xz & rm curl.tar.xz
 move curl* ..\curl
 rm -rf tmp
 cd ..\curl
-sh configure --without-ssl --disable-shared --enable-static
+sh configure --without-ssl --disable-shared
 make
 ```
 
@@ -177,13 +177,10 @@ To do so edit the following:
   - Change `_runAdditionalCheck` to 1 to run additional test, using `map\additionalCheck.bat`
     - **NOTE** - `map\additionalCheck.bat` is completely as needed
   - **TEST COMMANDS**
-    - Change `_runTestCommandCurrent` to the test command, or path to test command to use with the below configurred variaables i.e. `src\curl`
+    - Change `_runTestCommandCurrent` to the test command, or path to test command to use with the below configurred variables i.e. `src\curl`
       - Change `_runTestCommandCurrentA` to `%_runTestCommandCurrent% --option` i.e. `%_runTestCommandCurrent% --help`
       - Change `_runTestCommandCurrentB` to `%_runTestCommandCurrent% --option`
-      - Change `_runTestCommandCurrentC` to `%_runTestCommandCurrent% --option`
-      - Change `_runTestCommandCurrentD` to `%_runTestCommandCurrent% --option`
-      - Change `_runTestCommandCurrentE` to `%_runTestCommandCurrent% --option`
-      - Change `_runTestCommandCurrentF` to `%_runTestCommandCurrent% --option`
+      - Change `_runTestCommandCurrent...` to `%_runTestCommandCurrent% --option`
       - Change `_runTestCommandCurrent_INSTALL_CHECK` to command to output something for automation script
   - **Optional**
     - If any configruation is needed then change `_useConfigOptionCurrent` to 1

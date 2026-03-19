@@ -26,5 +26,5 @@ Then make changes to:
 #### `git` Instructions 1
 
 - `git add .`
-- `git commit -m "INSTALL.md: update cygwin instructions"`
+- `git commit -m "_commitMessageSetEnvironment"`
 

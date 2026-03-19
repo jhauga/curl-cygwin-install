@@ -15,7 +15,7 @@ REM install
 :: CONFIGURATION VARIABLE
 set "_programInstall=curl"
 set "_useConfig=0"
-set "_defaultConfig=--without-ssl --disable-shared --enable-static"
+set "_defaultConfig=--without-ssl --disable-shared"
 
 :: For makseshift help
 set "_helpLinesInstall=19"
