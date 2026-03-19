@@ -17,3 +17,4 @@ statusLinkCheckCurrent.txt
 prompt.md.template
 claude/prompt.md
 call-claude.log
+logs/

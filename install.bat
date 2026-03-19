@@ -15,6 +15,7 @@ REM install
 :: CONFIGURATION VARIABLE
 set "_programInstall=curl"
 set "_useConfig=0"
+set "_configTool=sh configure"
 set "_defaultConfig=--without-ssl --disable-shared"
 
 :: For makseshift help
@@ -222,7 +223,7 @@ goto:eof
    if "%_parOneInstall%"=="--task-run" (
     if "%_useConfig%"=="1" (
      rem use default
-     set "_configOption=%_defaultConfig%"
+     set "_configOption=%_configTool% %_defaultConfig%"
      call :_prepForNewRun 2 --set-default & goto:eof
     )
    ) else (
@@ -273,7 +274,7 @@ goto:eof
   ) else (
    rem define config option per input
    if NOT DEFINED _configOption (
-    set "_configOption=%_defaultConfig%"
+    set "_configOption=%_configTool% %_defaultConfig%"
    ) else (
     rem ensure that correct digit was input
     echo %_configOption% | findstr /R [1-%_numberOfOptions%] >nul 2>nul
@@ -292,7 +293,7 @@ goto:eof
      del /Q _tmp-config-opt.txt >nul 2>nul
     ) else (
      call instructLine "Incorrect Input - Using Default --without-ssl"
-     set "_configOption=%_defaultConfig%"
+     set "_configOption=%_configTool% %_defaultConfig%"
     )
    )
   )
@@ -342,6 +343,7 @@ goto:eof
  )
  set _programInstall=
  set _useConfig=
+ set _configTool=
  set _defaultConfig=
  set _helpLinesInstall=
  set _curDir=

@@ -1,9 +1,10 @@
 
 ### Part II - Exclude Configure Flags
 
-It seems that the config flags in the variable `_configOptionCurrent` from
-`map\setConfigVar.bat` are no longer needed, and that the configuration used in
-`map\additionalCheck.bat` can be used. The `configure` option(s) used for it:
+It seems that the config call in the variable `_configOptionCurrent` from
+`map\setConfigVar.bat` is using unecessary option, and that the configuration
+call in `map\additionalCheck.bat` can be used. The configuration call used
+for it:
 
 - `_additionalCheckConfigFlag`
 

@@ -14,29 +14,29 @@ echo download_path:%_siteUriCurrent%
 echo extact_download-uri:
 echo   command: "%_extractInstallUriCurrent%"
 echo install_dependencies:
-if "%_debugForceErrorSchedCong%"=="0" (
+if "%_debugForceErrorDependencies%"=="0" (
 echo   command:setup-x86_64.exe %_packageDependenciesCurrent%
 ) else (
 echo   command:setup-x86_64.exe %_forceErrorPackageDependenciesCurrent%
 )
 if "%_useConfigOptionCurrent%"=="1" (
 if "%"_debugForceErrorConfig%"=="0" (
-echo configure_call:sh configure %_configOptionCurrent%
+echo configure_call:"%_configOptionCurrent%"
 ) else (
-echo configure_call:sh configure %_forceErrorConfigOptionCurrent%
+echo configure_call:"%_forceErrorConfigOptionCurrent%"
 )
 )
 if "%"_debugForceErrorInstall%"=="0" (
 if "%_useCustomMakeCurrent%"=="0" (
 echo make_call:make
 ) else (
-echo make_call:%_useCustomMakeCurrent%
+echo make_call:"%_useCustomMakeCurrent%"
 )
 ) else (
 if "%_useForceErrorCustomMakeCurrent%"=="0" (
 echo make_call:make
 ) else (
-echo make_call:%_forceErrorCustomMakeCurrent%
+echo make_call:"%_forceErrorCustomMakeCurrent%"
 )
 )
 echo test_install:

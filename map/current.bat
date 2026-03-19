@@ -69,7 +69,7 @@ goto:eof
    if "%_checkParOneCurrent%"=="--" (
     rem assume debugging - add/edit subroutines as needed
     if "%_useConfigOptionCurrent%"=="1" (
-     call "%_instructLine%" "Using %_configOptionCurrent% to Build %_programCurrent%:"
+     call "%_instructLine%" "Using Configuration to Build %_programCurrent%:"
     )
     set "_parOneCurrent=:_current_cygwin"
 
@@ -104,7 +104,7 @@ goto:eof
   call "%_instructLine%" /B
 
   rem use condensed name to get packages
-  if "%_debugForceErrorSchedCong%"=="0" (
+  if "%_debugForceErrorDependencies%"=="0" (
    pkg %_packageDependenciesCurrent%
   ) else (
    pkg %_forceErrorPackageDependenciesCurrent%
@@ -143,37 +143,37 @@ goto:eof
    rem in sandbox\curl
    cd ..\%_programCurrent%
    if "%_useConfigOptionCurrent%"=="1" (
-    if "%_configOptionCurrent%"=="_none_used_" (
-     sh configure
+    if "%_debugForceErrorConfig%"=="0" (
+     %_configOptionCurrent%
     ) else (
-     if "%_debugForceErrorConfig%"=="0" (
-      sh configure %_configOptionCurrent%
-     ) else (
-      rem force fail to test automated task
-      sh configure %_forceErrorConfigOptionCurrent%
-     )
+     rem force fail to test automated task
+     %_forceErrorConfigOptionCurrent%
     )
    )
    if "%_debugForceErrorInstall%"=="0" (
     if "%_useCustomMakeCurrent%"=="1" (
      %_customMakeCurrent%
-     %_customMakeCurrent% 2> "%~dp0install_log.log"
+     if "%_debugCreateLogs%"=="1" %_customMakeCurrent% 2> "%~dp0install_log.log"
     ) else (
      make
-     make 2> "%~dp0install_log.log"
+     if "%_debugCreateLogs%"=="1" make 2> "%~dp0install_log.log"
     )
    ) else (
     if "%_useForceErrorCustomMakeCurrent%"=="1" (
      %_forceErrorCustomMakeCurrent%
-     %_forceErrorCustomMakeCurrent% 2> "%~dp0install_log.log"
+     if "%_debugCreateLogs%"=="1" %_forceErrorCustomMakeCurrent% 2> "%~dp0install_log.log"
     ) else (
      make docs
-     make docs 2> "%~dp0install_log.log"
+     if "%_debugCreateLogs%"=="1" make docs 2> "%~dp0install_log.log"
     )
    )
    if "%_useConfigOptionCurrent%"=="1" (
     rem if make completely failed, then reason for fail is on config
-    sh configure %_configOptionCurrent% 2> "%~dp0config_log.log"
+    if "%_debugForceErrorConfig%"=="0" (
+     if "%_debugCreateLogs%"=="1" %_configOptionCurrent% 2> "%~dp0config_log.log"
+    ) else (
+     if "%_debugCreateLogs%"=="1" %_forceErrorConfigOptionCurrent% 2> "%~dp0config_log.log"
+    )
    )
    rem next part of process
    call %_parOneCurrent% 3 & goto:eof

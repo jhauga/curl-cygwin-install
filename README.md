@@ -112,7 +112,7 @@ Write-Host "Done."
 
 ```bash
 winget install cygwin.cygwin --source winget
-curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
+curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\setup-x86_64"
 set PATH=%PATH%;C:\cygwin64\bin\
 ```
 > [!NOTE]
@@ -120,17 +120,31 @@ set PATH=%PATH%;C:\cygwin64\bin\
 
 #### III. Install Dependencies
 
+> [!NOTE]
+> Option B **Using `ninja`** is recommended as it is MUCH faster.
+
+**i. Option A - Using `make`**
+
 ```bash
-# This guarantees all dependencies are downloaded
-pkg --no-admin -q -I --build-depends curl
+# This guarantees all dependencies are downloaded if using `make` to install
+setup-x86_64 --no-admin -q -I --build-depends curl
+
 # If dependencies are known, then run like this
-pkg --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+setup-x86_64 --no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
+```
+
+**i. Option B - Using `ninja`**
+
+```bash
+setup-x86_64 --no-admin -q -I -P binutils,cmake,gcc-core,libpsl-devel,libtool,ninja,perl,libssl-devel,zlib-devel
 ```
 
 #### IV. Install Program `curl`
 
 > [!NOTE]
 > Mind version numbering.
+
+**Download and Extract Source**
 
 ```bash
 mkdir dump & cd dump
@@ -142,8 +156,20 @@ tar -xJf curl.tar.xz & rm curl.tar.xz
 move curl* ..\curl
 rm -rf tmp
 cd ..\curl
+```
+
+**ii. Option A - Using `make`**
+
+```bash
 sh configure --without-ssl --disable-shared
 make
+```
+
+**ii. Option B - Using `ninja`**
+
+```bash
+cmake . -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+ninja
 ```
 
 ## Specify Installation to Check
@@ -155,12 +181,12 @@ To do so edit the following:
 
 - **`install.bat`**
   - Change `_programInstall` to program name
-  - Change `_useConfig` to 1 if the program requires a `sh configure` call before `make`
+  - Change `_useConfig` to 1 if the program requires a configuration like `sh configure`; call before `make`
     - **NOTE** - mainly set configuration here if you want to use menu selection from `config-options.txt`
     - **NOTE** - this will change the configuration in `map\setConfigVar.bat` config variables
     - Set to 0 if `map\setConfigVar.bat` configuration is to be used
-  - Change `_defaultConfig` to options to use for `sh configure` call
-    - **NOTE** - set to `_none_used_` if only `sh configure` is used
+  - Change `_configTool` to the name of the configuration tool e.g. `sh configure`, `cmake`, etc...
+  - Change `_defaultConfig` to full congiguration call with options to use for the installation
 - **`config-options.txt`**
   - Change to viable configuration options if the install use a configure call
 - **`map\setConfigVar.bat`**
