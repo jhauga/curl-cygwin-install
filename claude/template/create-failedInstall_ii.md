@@ -14,29 +14,15 @@ will resolve the failed install:
 install.bat --task-run
 ```
 
-3. After running that command, set a timer
+3. After running that command, wait and verify the proposed resolution worked on the Sandbox build
 
-- For every 10 minutes or 600 seconds that pass, run `goto _checkIfComplete`:
-
-```bash
-:_checkIfComplete
- ls -1 sandbox ^| find "_installation_is_complete.txt"
- rem when errorlevel is 0, or the file _installation_is_complete.txt exist, go to next step
- if "%ERRORLEVEL%"=="0" ( TIMEOUT /T 5 & goto _checkIfPass & rem go to the next step or step 3 ) else ( TIMEOUT /T 600 & call :_checkIfComplete & goto:eof )
-goto:eof
-```
-
-3. When the installation is complete there will be a file name `sandbox/_installation_is_completed.txt`,
-when that is the case, run:
+  - When the installation is complete there will be a file named `sandbox/_installation_is_completed.txt`,
+ when that is the case, run:
 
 ```bash
-:_checkIfPass
- TASKKILL /F /FI "imagename eq WindowsSandboxServer.exe"
- TIMEOUT /T 10
  install.bat --delay
  type curlInstructionWork.txt | find "Pass"
  if "%ERRORLEVEL%"=="0" (echo pass> "%~dp0claudeResponse.txt" & echo Go to next part of this process ) else (echo fail> "%~dp0claudeResponse.txt" & echo Do nothing else, and end this process)
-goto:eof
 ```
 
 ### Part II - Pull Request Task
@@ -54,7 +40,8 @@ Make a branch in `_localRepoSetEnvironment`. Call it "_branchNameSetEnvironment"
 
 Then make changes to:
 
-- `docs/INSTALL.md` with the bare minimum solution used to resolve the failed install from **Part I**.
+- `_localRepoEditFilesEnvironment` with the bare minimum proposed error resolution in the Cygwin portion of `_localRepoEditFilesEnvironment`
+  = Add a list item at the end of the Cygwin install section with the proposed solution to resolve the failed install from **Part I**.
 
 #### `git` Instructions 2
 

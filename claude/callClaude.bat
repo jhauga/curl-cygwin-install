@@ -4,8 +4,8 @@ REM callClaude
 
 :: Debug variables
 set "_debugCallClaude=0" & rem 0 (default), 1 does not call claude-code
-set "_debugResetCallClaude=0" & rem 9 (default), 1 resest "callClaude.txt" to `_resetCallClaude`
-set "_resetCallClaude=create:failedInstall-missingSourceLink" & rem as needed, only used if `_debugCallClaude` is 1
+set "_debugResetCallClaude=1" & rem 9 (default), 1 resest "callClaude.txt" to `_resetCallClaude`
+set "_resetCallClaude=create:missingSourceLink" & rem as needed, only used if `_debugCallClaude` is 1
 
 :: Start call
 cd "%~dp0.."
@@ -149,6 +149,6 @@ goto:eof
   if "%_debugResetCallClaude%"=="1" (
    echo %_resetCallClaude%>callClaude.txt
   )
-  (type claude\prompt.md & echo. & echo exit) | claude --dangerously-skip-permissions
+  claude --print --dangerously-skip-permissions < claude\prompt.md > call-claude.log
  )
 goto:eof
