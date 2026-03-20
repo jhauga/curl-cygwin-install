@@ -60,7 +60,7 @@ goto:eof
     rem CONFIG-EDIT--_extractInstallUriCurrent--CALL
     %_extractInstallUriCurrent% > pipedExtractInstallUriCurrent.txt
     sed -i -E "s/^.* href=.(.*)\".*$/\1/" pipedExtractInstallUriCurrent.txt
-    
+
     type pipedExtractInstallUriCurrent.txt > %_programCurrent%_download_uri.txt
     rem use variable for cmd tool
     call "%_cmdVar%" "type %_programCurrent%_download_uri.txt" _current
