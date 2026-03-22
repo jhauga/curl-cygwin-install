@@ -187,6 +187,9 @@ To do so edit the following:
     - Set to 0 if `map\setConfigVar.bat` configuration is to be used
   - Change `_configTool` to the name of the configuration tool e.g. `sh configure`, `cmake`, etc...
   - Change `_defaultConfig` to full congiguration call with options to use for the installation
+  - Change `_dailyCheckInstall` to 1 if checking URL for latest release
+    - This allows task to be run on a daily schedule
+  - Change `_checkLatestUrlInstall` to the URL to check for latest release
 - **`config-options.txt`**
   - Change to viable configuration options if the install use a configure call
 - **`map\setConfigVar.bat`**

@@ -17,6 +17,8 @@ set "_programInstall=curl"
 set "_useConfig=0"
 set "_configTool=sh configure"
 set "_defaultConfig=--without-ssl --disable-shared"
+set "_dailyCheckInstall=1" & rem check if url of latest.txt has changed
+set "_checkLatestUrlInstall=https://github.com/%_programInstall%/%_programInstall%/releases/latest"
 
 :: For makseshift help
 set "_helpLinesInstall=19"
@@ -96,11 +98,19 @@ sed -i "s/\\/-:-/g" tmpFileCygwinInstall.txt
 :: Store current directory in variable - see cmdVar.bat
 call cmdVar "type tmpFileCygwinInstall.txt" _curDir
 
+:: Check if the latest url is different.
+if "%_dailyCheckInstall%"=="1" (
+ rem check latest url
+ call checkLatest.bat
+ call :_checkLatestInstall 1
+ goto:eof
+)
 :: Remove prior config if exists.
 call :_prepForNewRun 1 --start
 
 :: Start process for Sandbox.
-call :_startCygwinInstall 1 & goto:eof
+call :_startCygwinInstall 1
+goto:eof
 
 :: Main subroutine of procedure.
 :_startCygwinInstall
@@ -322,6 +332,29 @@ goto:eof
  )
 goto:eof
 
+:_checkLatestInstall
+ if "%1"=="1" (
+  if "%_latestRelease%"=="%_checkRelease%" (
+   echo No new release. Exiting task.
+   if "%_parOneInstall%"=="--task-run" (
+    goto _removeBatchVariables
+   ) else (
+    call :_checkLatestInstall 2 & goto:eof
+   )
+  ) else (
+   echo %_checkRelease%> latest.txt
+   call :_checkLatestInstall 2 & goto:eof
+  )
+ )
+ if "%1"=="2" (
+  rem remove prior config if exists.
+  call :_prepForNewRun 1 --start
+
+  rem start process for Sandbox.
+  call :_startCygwinInstall 1 & goto:eof
+ )
+goto:eof
+
 :_makeShiftHelpInstall
  if "%1"=="1" (
   head -n %_helpLinesInstall% "%~dp0%~n0.bat" | sed 1d | sed -e "s/:://" -e "s/REM//" -E -e "s/^set/ set/"
@@ -352,4 +385,11 @@ goto:eof
  set _debugTaskRunInstall=
  set _parOneInstall=
  set _checkParOneInstall=
+ set _checkRelease=
+ set _closeOutInstall=
+ set _dailyCheckInstall=
+ set _delCurlInstall=
+ set _installNotepad=
+ set _latestRelease=
+ set _checkLatestUrlInstall=
 goto:eof
