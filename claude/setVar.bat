@@ -24,18 +24,18 @@ if "%_debugSetVar%"=="1" (
  call :_setDebugVar 1
 ) else (
  if EXIST "data\mirrorSiteDownloadLink.uri" (
-  call cmdVar.bat "type data\mirrorSiteDownloadLink.uri" _mirrorSiteDownloadLink
+  call lib\cmdVar.bat "type data\mirrorSiteDownloadLink.uri" _mirrorSiteDownloadLink
  )
  if EXIST "data\callClaude.template" (
-  call cmdVar.bat "type data\callClaude.template" _callClaude
+  call lib\cmdVar.bat "type data\callClaude.template" _callClaude
   type data\callClaude.template | find "create:" >nul 2>nul
   call :_errorCheck 1 create initial
  ) else (
   call :_errorCheck --single-point & goto:eof
  )
  if EXIST "data\claude-context.yaml" (
-  call cmdVar.bat "yq ".configure_call" data\claude-context.yaml" _congigureCallClaude
-  call cmdVar.bat "yq ".install_dependencies.command" data\claude-context.yaml" _installDependencies
+  call lib\cmdVar.bat "yq ".configure_call" data\claude-context.yaml" _congigureCallClaude
+  call lib\cmdVar.bat "yq ".install_dependencies.command" data\claude-context.yaml" _installDependencies
  ) else (
   call :_errorCheck --single-point & goto:eof
  )
@@ -135,7 +135,7 @@ goto:eof
  )
  if "%1"=="--single-point" (
   echo %1> data\callClaude.template
-  call cmdVar.bat "type data\callClaude.template" _callClaude
+  call lib\cmdVar.bat "type data\callClaude.template" _callClaude
  )
 goto:eof
 

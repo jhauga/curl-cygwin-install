@@ -8,7 +8,7 @@ set "_debugResetCallClaude=0" & rem 9 (default), 1 resest "callClaude.template" 
 set "_resetCallClaude=create:missingSourceLink" & rem as needed, only used if `_debugCallClaude` is 1
 
 :: Start call
-cd "%~dp0.."
+cd /D "%~dp0.."
 
 :: Ready all variables for claude code prompt
 call claude\setVar.bat
@@ -27,12 +27,12 @@ goto:eof
  if "%_createInitial%"=="1" (
   if "%_create_failedInstall%"=="1" (
    type "%~dp0template\create-failedInstall_i.md" >> claude\prompt.md
-   type install_log.log >> claude\prompt.md 
+   type data\install_log.log >> claude\prompt.md 
    echo ```>> claude\prompt.md
   )
   if "%_useConfigOptionCurrent%"=="1" (
    type "%~dp0template\create-useConfigOptionCurrent.md" >> claude\prompt.md
-   type config_log.log >> claude\prompt.md
+   type data\config_log.log >> claude\prompt.md
    echo ```>> claude\prompt.md
   )
   if DEFINED _installDependencies (

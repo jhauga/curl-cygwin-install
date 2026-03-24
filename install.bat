@@ -71,7 +71,9 @@ if "%_parOneInstall%"=="--delay" (
   )
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
-  echo Fail> "%_programInstall%InstructionWork.txt"
+  if NOT EXIST "%_programInstall%InstructionWork.txt" (
+   echo Fail> "%_programInstall%InstructionWork.txt"
+  )
  )
  goto _removeBatchVariables
  goto:eof

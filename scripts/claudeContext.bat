@@ -5,7 +5,7 @@ REM claudeContext
 :: Set the debug variables
 if NOT DEFINED _debug (
  rem use map debug variables
- call "%~dp0..map\setDebugVar.bat"
+ call "%~dp0..\map\setDebugVar.bat"
  "%~dp0%~n0.bat"
 ) else (
 echo program:%_programCurrent%

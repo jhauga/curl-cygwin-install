@@ -21,9 +21,9 @@ install.bat --task-run
 
 ```bash
  install.bat --delay
- type curlInstructionWork.txt | find "Pass"
- if "%ERRORLEVEL%"=="0" (echo pass> "%~dp0claudeResponse.txt" & echo Go to next part of this process ) else (echo fail> "%~dp0claudeResponse.txt" & echo Do nothing else, and end this process)
 ```
+
+then `goto` part 2 **Pull Request Task**.
 
 ### Part II - Pull Request Task
 

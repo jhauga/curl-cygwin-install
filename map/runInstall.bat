@@ -91,15 +91,15 @@ goto:eof
   )
  )
  if "%1"=="2" (
-  rem NOTE - check `curlInstructionWork.txt` with a delay of over an hour to ensure install completed
+  rem NOTE - check `%_programCurrent%InstructionWork.txt` with a delay of over an hour to ensure install completed
   if "%_installCheck%"=="install_check" (
    set "_installCheck=Fail"
-   echo Fail> curlInstructionWork.txt
+   echo Fail> %_programCurrent%InstructionWork.txt
   ) else if "%_installCheck%"=="Fail" (
-   echo Fail> curlInstructionWork.txt
+   echo Fail> %_programCurrent%InstructionWork.txt
   ) else (
    set "_installCheck=Pass"
-   echo Pass> curlInstructionWork.txt
+   echo Pass> %_programCurrent%InstructionWork.txt
   )
   call :_cleanRunInstall 3 & goto:eof
  )

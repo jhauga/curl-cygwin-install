@@ -52,9 +52,9 @@ and pass parameter in configuration `--delay`.
    - **IMPORTANT** - if `--delay` is not passed the process will pause
 
 After the delayed task is run the `sandbox` folder will be deleted, and the
-file `curlInstructionWork.txt` will be placed from `sandbox` folder, or created;
-if the process failed altogether. It will simply say if the install was a "Pass",
-or a "Fail".
+file `curlInstructionWork.txt` (*or %_programCurrent%InstructionWork.txt*) will
+be placed from `sandbox` folder, or created; if the process failed altogether.
+It will simply say if the install was a "Pass", or a "Fail".
 
 #### Automated Install Error Resolution
 
