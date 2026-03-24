@@ -97,7 +97,7 @@ cd> tmpFileCygwinInstall.txt
 sed -i "s/\\/-:-/g" tmpFileCygwinInstall.txt
 
 :: Store current directory in variable - see cmdVar.bat
-call lib\cmdVar "type tmpFileCygwinInstall.txt" _curDir
+call lib\cmdVar.bat "type tmpFileCygwinInstall.txt" _curDir
 :: Remove tmp file for windows command line variable
 del /Q tmpFileCygwinInstall.txt
 
@@ -298,7 +298,7 @@ goto:eof
       rem ensure single space before `--`
       echo  --disable-shared --enable-static>> _tmp-config-opt.txt
      )
-     call lib\cmdVar "type _tmp-config-opt.txt" _configOption
+     call lib\cmdVar.bat "type _tmp-config-opt.txt" _configOption
 
      rem remove temp file
      del /Q _tmp-config-opt.txt >nul 2>nul
