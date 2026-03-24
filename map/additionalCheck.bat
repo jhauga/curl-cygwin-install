@@ -21,10 +21,10 @@ goto:eof
 :_runAdditionalCheck
  if "1"=="1" (
   if NOT "%_additionalCheck%"=="install_check" (
-   if EXIST "callClaude.txt" (
-    sed -i -E "s/^(.*)$/\1-excludeConfigFlags/" callClaude.txt
+   if EXIST "callClaude.template" (
+    sed -i -E "s/^(.*)$/\1-excludeConfigFlags/" callClaude.template
    ) else (
-    echo create:excludeConfigFlags> callClaude.txt
+    echo create:excludeConfigFlags> callClaude.template
    )
   )
  )

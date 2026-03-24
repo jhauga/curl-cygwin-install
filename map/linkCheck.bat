@@ -80,7 +80,7 @@ goto:eof
     echo -------------------------------------------------------------------------------------------
     echo -------------------------------------------------------------------------------------------
     set "_current=%_downloadUrlDownloadLinkCheck%"
-    echo %_downloadUrlDownloadLinkCheck%> "%~dp0mirrorSiteDownloadLink.txt"
+    echo %_downloadUrlDownloadLinkCheck%> "%~dp0mirrorSiteDownloadLink.uri"
     call "%~dp0current.bat" ":_current_cygwin" 2
     goto _removeBatchVariablesLinkCheck
    )

@@ -34,19 +34,13 @@ goto:eof
    rem  - check:
    rem    - missingAllLinks        = unable test install, look into it and find download links
    rem    - installCurrentCloseOut = unexpected in this script, look into it
-   if NOT EXIST "%~dp0callClaude.txt" (
+   if NOT EXIST "%~dp0callClaude.template" (
     if NOT "%_checkParTwoCurrent%"=="--" (
-     echo %_parTwoCurrent%> "%~dp0callClaude.txt"
+     echo %_parTwoCurrent%> "%~dp0callClaude.template"
     ) else (
-     echo check:installCurrentCloseOut> "%~dp0callClaude.txt"
+     echo check:installCurrentCloseOut> "%~dp0callClaude.template"
     )
    )
-   goto _removeBatchhVariablesCurrent
-  ) else if "%_parOneCurrent%"=="--delay" (
-   call "%~dp0claudeContext.bat" > claude-context.yaml
-   sed -i "s/'/ --q-- /g" claude-context.yaml
-   sed -i -E -e "s/^(.{1,}:) .(.*).$/\1 \2/" -E -e "s;^( {0,}[a-zA-Z]+:)(.);\1 \2;" -E -e "s/^( {1,}- [a-zA-Z]+:)(.)/\1 \2/" -E -e "s/^([a-zA-Z_]+:)(.)/\1 \2/" -E -e "s/([a-zA-Z_]+:) {2,}(.)/\1 \2/" claude-context.yaml
-   sed -i -e "s/--q--/'/g" -e "s/ '/'/g" -e "s/' / '/g" claude-context.yaml
    goto _removeBatchhVariablesCurrent
   ) else (
    rem store most recent in variable.
@@ -58,12 +52,12 @@ goto:eof
     rem curl -s https://curl.se/download.html ^| findstr /R "https://mirrors.kernel.org/sources.redhat.com/cygwin/x86_64/release/curl/curl-[0-9].*src.tar.xz" ^| head -n 1
 
     rem CONFIG-EDIT--_extractInstallUriCurrent--CALL
-    %_extractInstallUriCurrent% > pipedExtractInstallUriCurrent.txt
-    sed -i -E "s/^.* href=.(.*)\".*$/\1/" pipedExtractInstallUriCurrent.txt
+    %_extractInstallUriCurrent% > pipedExtractInstallUriCurrent.uri
+    sed -i -E "s/^.* href=.(.*)\".*$/\1/" pipedExtractInstallUriCurrent.uri
 
-    type pipedExtractInstallUriCurrent.txt > %_programCurrent%_download_uri.txt
+    type pipedExtractInstallUriCurrent.uri > %_programCurrent%_download_uri.uri
     rem use variable for cmd tool
-    call "%_cmdVar%" "type %_programCurrent%_download_uri.txt" _current
+    call "%_cmdVar%" "type %_programCurrent%_download_uri.uri" _current
    )
    rem safety condition before beginning process.
    if "%_checkParOneCurrent%"=="--" (
@@ -120,6 +114,7 @@ goto:eof
    call "%_instructLine%" "Checking Download Link:"
    curl -sI %_current% | sed -n "s/^HTTP[^ ]* \([0-9][0-9][0-9]\).*/\1/p" > statusLinkCheckCurrent.txt
    call "%_cmdVar%" "type statusLinkCheckCurrent.txt" _statusLinkCheckCurrent
+   del /Q statusLinkCheckCurrent.txt
    call %_parOneCurrent% --status-check & goto:eof
   ) else (
    call "%_instructLine%" "Installing %_programCurrent%:"

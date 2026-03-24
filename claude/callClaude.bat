@@ -1,10 +1,10 @@
 @echo off 
 REM callClaude
-::  Run after scheduled task if "callClaude.txt" exists, make prompt from template and pass to claude.
+::  Run after scheduled task if "callClaude.template" exists, make prompt from template and pass to claude.
 
 :: Debug variables
 set "_debugCallClaude=0" & rem 0 (default), 1 does not call claude-code
-set "_debugResetCallClaude=0" & rem 9 (default), 1 resest "callClaude.txt" to `_resetCallClaude`
+set "_debugResetCallClaude=0" & rem 9 (default), 1 resest "callClaude.template" to `_resetCallClaude`
 set "_resetCallClaude=create:missingSourceLink" & rem as needed, only used if `_debugCallClaude` is 1
 
 :: Start call
@@ -142,13 +142,11 @@ goto:eof
  sed -i "s/_configOptionCurrent/%_configOptionCurrent%/g" claude\prompt.md
 
  if "%_debugCallClaude%"=="1" (
-  echo claude --print --dangerously-skip-permissions ^< claude\prompt.md ^> call-claude.log
+  echo claude --print --dangerously-skip-permissions ^< claude\prompt.md ^> data\call-claude.log
   echo DONE:
-  echo %_resetCallClaude%>callClaude.txt
+  echo %_resetCallClaude%>callClaude.template
  ) else (
-  if "%_debugResetCallClaude%"=="1" (
-   echo %_resetCallClaude%>callClaude.txt
-  )
-  claude --print --dangerously-skip-permissions < claude\prompt.md > call-claude.log
+  if "%_debugResetCallClaude%"=="1" echo %_resetCallClaude%>callClaude.template
+  claude --print --dangerously-skip-permissions < claude\prompt.md > data\call-claude.log
  )
 goto:eof

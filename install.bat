@@ -51,22 +51,23 @@ if "%_parOneInstall%"=="--delay" (
    echo Fail> "%_programInstall%InstructionWork.txt"
   )
   if EXIST "sandbox\install_log.log" (
-   move /Y "sandbox\install_log.log" "install_log.log" >nul 2>nul
+   move /Y "sandbox\install_log.log" "data\install_log.log" >nul 2>nul
   )
   if EXIST "sandbox\config_log.log" (
-   move /Y "sandbox\config_log.log" "config_log.log" >nul 2>nul
+   move /Y "sandbox\config_log.log" "data\config_log.log" >nul 2>nul
   )
   if EXIST "sandbox\%_programInstall%" (
    move /Y "sandbox\%_programInstall%" "%_programInstall%" >nul 2>nul
   )
-  if EXIST "sandbox\mirrorSiteDownloadLink.txt" (
-   move /Y "sandbox\mirrorSiteDownloadLink.txt" "mirrorSiteDownloadLink.txt"
+  if EXIST "sandbox\mirrorSiteDownloadLink.uri" (
+   move /Y "sandbox\mirrorSiteDownloadLink.uri" "data\mirrorSiteDownloadLink.uri"
   )
-  if EXIST "sandbox\callClaude.txt" (
+  if EXIST "sandbox\callClaude.template" (
    rem for claude or another automated script
-   move /Y "sandbox\callClaude.txt" "callClaude.txt"
+   move /Y "sandbox\callClaude.template" "data\callClaude.template"
+   
    rem get more context for claude call
-   call map\current.bat --delay
+   call scripts\delay.bat
   )
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
@@ -96,12 +97,14 @@ cd> tmpFileCygwinInstall.txt
 sed -i "s/\\/-:-/g" tmpFileCygwinInstall.txt
 
 :: Store current directory in variable - see cmdVar.bat
-call cmdVar "type tmpFileCygwinInstall.txt" _curDir
+call lib\cmdVar "type tmpFileCygwinInstall.txt" _curDir
+:: Remove tmp file for windows command line variable
+del /Q tmpFileCygwinInstall.txt
 
 :: Check if the latest url is different.
 if "%_dailyCheckInstall%"=="1" (
  rem check latest url
- call checkLatest.bat
+ call scripts\checkLatest.bat
  call :_checkLatestInstall 1
  goto:eof
 )
@@ -126,16 +129,16 @@ goto:eof
    sed -i -E "0,/(_useConfigOptionCurrent=).*/{s/(_useConfigOptionCurrent=).*/\1%_useConfig%/}" sandbox\current.bat
    sed -i -E "0,/(_configOptionCurrent=).*/{s/(_configOptionCurrent=).*/\1%_configOption%/}" sandbox\current.bat
   )
-  call instructLine /B
-  call instructLine /H "INSTRUCTIONS:"
+  call lib\instructLine /B
+  call lib\instructLine /H "INSTRUCTIONS:"
   TIMEOUT /T 1 >nul 2>nul
-  call instructLine /B
-  call instructLine "When Sandbox Opens, runInstall.bat will execute automatically."
-  call instructLine /B
+  call lib\instructLine /B
+  call lib\instructLine "When Sandbox Opens, runInstall.bat will execute automatically."
+  call lib\instructLine /B
   TIMEOUT /T 3 >nul 2>nul
-  call instructLine /H "CONFIGURE SANDBOX:"
+  call lib\instructLine /H "CONFIGURE SANDBOX:"
   TIMEOUT /T 1 >nul 2>nul
-  call instructLine /B
+  call lib\instructLine /B
   rem check if installing notepadd++ for debug in sandbox
   if NOT "%_parOneInstall%"=="--task-run" (
    call :_checkInstallNotepad 1
@@ -150,7 +153,7 @@ goto:eof
   rem start sandbox, mapping clean sandbox folder
   if NOT EXIST "%~dp0runStartSandbox.wsb" (
    if "%_checkParOneInstall%"=="--" (
-    call instructLine "Something unexpected happened. Exiting batch."
+    call lib\instructLine "Something unexpected happened. Exiting batch."
     exit /b
    ) else (
     rem this is primarily for scheduled task as task will be terminated if this recurs over an hour
@@ -163,37 +166,35 @@ goto:eof
   ) else (
    start "" "%~dp0runStartSandbox.wsb"
   )
-  rem remove tmp file for windows command line variable
-  del tmpFileCygwinInstall.txt
   rem next part of process
   call :_startCygwinInstall 2 & goto:eof
  )
  if "%1"=="2" (
   rem output final notes on process
   if NOT "%_parOneInstall%"=="--task-run" (
-   call instructLine /B
-   call instructLine "Wait for Sandbox Process to Finish, then Press Enter to Close this Window:"
-   call instructLine /B
+   call lib\instructLine /B
+   call lib\instructLine "Wait for Sandbox Process to Finish, then Press Enter to Close this Window:"
+   call lib\instructLine /B
    TIMEOUT /T 4 >nul 2>nul
-   call instructLine /H "IMPORTANT"
-   call instructLine "NOTE - closing after Sandbox session has ended will remove temp files of build."
-   call instructLine "NOTE - the entire install process should take around 15 minutes."
-   call instructLine "NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install."
-   call instructLine /B
-   call instructLine /D
-   call instructLine /B
+   call lib\instructLine /H "IMPORTANT"
+   call lib\instructLine "NOTE - closing after Sandbox session has ended will remove temp files of build."
+   call lib\instructLine "NOTE - the entire install process should take around 15 minutes."
+   call lib\instructLine "NOTE - if needed delete runStartSandbox.wsb and sandbox folder after install."
+   call lib\instructLine /B
+   call lib\instructLine /D
+   call lib\instructLine /B
    pause
-   call instructLine "Delay of 15 seconds to ensure Sandbox task is closed."
+   call lib\instructLine "Delay of 15 seconds to ensure Sandbox task is closed."
    Timeout 15 >nul 2>nul
-   call instructLine /B
+   call lib\instructLine /B
   )
   rem next part of process
   call :_startCygwinInstall 3 & goto:eof
  )
  if "%1"=="3" (
   rem if no sandbox process, delete folders used for build, keeping install
-  call instructLine "Cleaning Sandbox:"
-  call instructLine /B
+  call lib\instructLine "Cleaning Sandbox:"
+  call lib\instructLine /B
   rem ensure sandbox is not running
   tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
   if ERRORLEVEL 1 (
@@ -221,8 +222,8 @@ goto:eof
    rem remove prior sandbox if exists
    if EXIST sandbox rmdir /S/Q sandbox >nul 2>nul
    xcopy /Y/E/I map sandbox >nul 2>nul
-   copy /Y cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
-   copy /Y instructLine.bat sandbox\instructLine.bat >nul 2>nul
+   copy /Y lib\cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
+   copy /Y lib\instructLine.bat sandbox\instructLine.bat >nul 2>nul
    
    rem ensure sandbox folder is fully written before proceeding
    if EXIST "sandbox\runInstall.bat" (
@@ -241,13 +242,13 @@ goto:eof
     rem select configuration option
     if "%_useConfig%"=="1" (
      if EXIST "config-options.txt" (
-      call instructLine "Enter Corresponding DIGIT to Select Config Option:"
-      call instructLine /D
-      call instructLine "NOTE - press enter to use default --without-ssl option."
-      call instructLine /B
-      call instructLine /F config-options.txt
+      call lib\instructLine "Enter Corresponding DIGIT to Select Config Option:"
+      call lib\instructLine /D
+      call lib\instructLine "NOTE - press enter to use default --without-ssl option."
+      call lib\instructLine /B
+      call lib\instructLine /F config-options.txt
       set /P _configOption=
-      call instructLine /B
+      call lib\instructLine /B
 
       rem store number of lines in a variable
       FOR /F %%A in ('find /v /c "" ^< config-options.txt') DO set _numberOfOptions=%%A
@@ -265,9 +266,9 @@ goto:eof
     if "%_parOneInstall%"=="--task-run" (
      set _delCurlInstall=y
     ) else (
-     call instructLine "Delete %_programInstall% folder from Sandbox install?"
-     call instructLine " y or n "
-     call instructLine /B
+     call lib\instructLine "Delete %_programInstall% folder from Sandbox install?"
+     call lib\instructLine " y or n "
+     call lib\instructLine /B
      set /P _delCurlInstall=
     )
     call :_prepForNewRun --close & goto:eof
@@ -280,7 +281,7 @@ goto:eof
  if "%1"=="2" (
   if "%2"=="--set-default" (
    rem using scheduled task
-   call instructLine "Configuration set to %_configOption%"
+   call lib\instructLine "Configuration set to %_configOption%"
   ) else (
    rem define config option per input
    if NOT DEFINED _configOption (
@@ -297,12 +298,12 @@ goto:eof
       rem ensure single space before `--`
       echo  --disable-shared --enable-static>> _tmp-config-opt.txt
      )
-     call cmdVar "type _tmp-config-opt.txt" _configOption
+     call lib\cmdVar "type _tmp-config-opt.txt" _configOption
 
      rem remove temp file
      del /Q _tmp-config-opt.txt >nul 2>nul
     ) else (
-     call instructLine "Incorrect Input - Using Default --without-ssl"
+     call lib\instructLine "Incorrect Input - Using Default --without-ssl"
      set "_configOption=%_configTool% %_defaultConfig%"
     )
    )
@@ -318,14 +319,14 @@ goto:eof
 
 :_checkInstallNotepad
  if "%1"=="1" (
-   call instructLine "Do you also want to install Notepad++ for debugging in Sandox?"
-   call instructLine "input - yes or no"
-   call instructLine /B
+   call lib\instructLine "Do you also want to install Notepad++ for debugging in Sandox?"
+   call lib\instructLine "input - yes or no"
+   call lib\instructLine /B
    set /P _installNotepad=
    call :_checkInstallNotepad 2 & goto:eof
  )
  if "%1"=="2" (
-  call instructLine /B
+  call lib\instructLine /B
   if /i "%_installNotepad%"=="yes" (
    echo yes> "sandbox\install_notepad.txt"
   )
@@ -342,11 +343,12 @@ goto:eof
     call :_checkLatestInstall 2 & goto:eof
    )
   ) else (
-   echo %_checkRelease%> latest.txt
+   echo %_checkRelease%> data\latest.uri
    call :_checkLatestInstall 2 & goto:eof
   )
  )
  if "%1"=="2" (
+  rem resume call as normal
   rem remove prior config if exists.
   call :_prepForNewRun 1 --start
 
@@ -365,14 +367,14 @@ goto:eof
 
 :_removeBatchVariables
  if DEFINED _helpLinesInstall (
-  call instructLine /B
-  call instructLine "Removing Variables from Process:"
-  call instructLine /B
-  call instructLine "COMPLETE:"
-  call instructLine /B
-  call instructLine /D
-  call instructLine /D
-  call instructLine /B
+  call lib\instructLine /B
+  call lib\instructLine "Removing Variables from Process:"
+  call lib\instructLine /B
+  call lib\instructLine "COMPLETE:"
+  call lib\instructLine /B
+  call lib\instructLine /D
+  call lib\instructLine /D
+  call lib\instructLine /B
  )
  set _programInstall=
  set _useConfig=

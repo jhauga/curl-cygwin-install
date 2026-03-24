@@ -7,12 +7,13 @@ setup.log.full
 curlInstructionWork.txt 
 install_log.log 
 config_log.log
-callClaude.txt
+callClaude.template
 claude-context.yaml
 _dump.txt
 curl_download_uri.txt
-mirrorSiteDownloadLink.txt
-pipedExtractInstallUriCurrent.txt
+*_download_uri.uri
+mirrorSiteDownloadLink.uri
+pipedExtractInstallUriCurrent.uri
 statusLinkCheckCurrent.txt
 prompt.md.template
 claude/prompt.md

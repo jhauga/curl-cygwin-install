@@ -23,19 +23,19 @@ set "_debug_check_installCurrentCloseOut=1" & rem as needed, requires _debugSetV
 if "%_debugSetVar%"=="1" (
  call :_setDebugVar 1
 ) else (
- if EXIST "mirrorSiteDownloadLink.txt" (
-  call cmdVar.bat "type mirrorSiteDownloadLink.txt" _mirrorSiteDownloadLink
+ if EXIST "data\mirrorSiteDownloadLink.uri" (
+  call cmdVar.bat "type data\mirrorSiteDownloadLink.uri" _mirrorSiteDownloadLink
  )
- if EXIST "callClaude.txt" (
-  call cmdVar.bat "type callClaude.txt" _callClaude
-  type callClaude.txt | find "create:" >nul 2>nul
+ if EXIST "data\callClaude.template" (
+  call cmdVar.bat "type data\callClaude.template" _callClaude
+  type data\callClaude.template | find "create:" >nul 2>nul
   call :_errorCheck 1 create initial
  ) else (
   call :_errorCheck --single-point & goto:eof
  )
- if EXIST "claude-context.yaml" (
-  call cmdVar.bat "yq ".configure_call" claude-context.yaml" _congigureCallClaude
-  call cmdVar.bat "yq ".install_dependencies.command" claude-context.yaml" _installDependencies
+ if EXIST "data\claude-context.yaml" (
+  call cmdVar.bat "yq ".configure_call" data\claude-context.yaml" _congigureCallClaude
+  call cmdVar.bat "yq ".install_dependencies.command" data\claude-context.yaml" _installDependencies
  ) else (
   call :_errorCheck --single-point & goto:eof
  )
@@ -68,14 +68,14 @@ goto:eof
   if "%3"=="initial" (
    set "_%_preVar%Initial=%4"
    if "%4"=="1" (
-    sed -i "s/%2://" callClaude.txt
+    sed -i "s/%2://" data\callClaude.template
     if "%2"=="create" (
      rem specify the next by raw data
-     type callClaude.txt | find "failedInstall" >nul 2>nul
+     type data\callClaude.template | find "failedInstall" >nul 2>nul
      call :_errorCheck 1 %2 failedInstall & goto:eof
     ) else (
      rem specify the next by raw data
-     type callClaude.txt | find "missingAllLinks" >nul 2>nul
+     type data\callClaude.template | find "missingAllLinks" >nul 2>nul
      call :_errorCheck 1 %2 missingAllLinks & goto:eof
     )
    ) else (
@@ -83,17 +83,17 @@ goto:eof
      call :_errorCheck --single-point & goto:eof
     ) else (
      rem run check sequence
-     type callClaude.txt | find "check:" >nul 2>nul
+     type data\callClaude.template | find "check:" >nul 2>nul
      call :_errorCheck 1 check initial & goto:eof
     )
    )
   ) else (
    set "_%_preVar%_%_varName%=%4"
    if "%3"=="failedInstall" (
-    type callClaude.txt | find "missingSourceLink" >nul 2>nul
+    type data\callClaude.template | find "missingSourceLink" >nul 2>nul
     call :_errorCheck 1 %2 missingSourceLink & goto:eof
    ) else if "%3"=="missingSourceLink" (
-    type callClaude.txt | find "excludeConfigFlags" >nul 2>nul
+    type data\callClaude.template | find "excludeConfigFlags" >nul 2>nul
     call :_errorCheck 1 %2 excludeConfigFlags & goto:eof
    ) else if "%3"=="excludeConfigFlags" (
     if "%_create_failedInstall%"=="1" (
@@ -118,7 +118,7 @@ goto:eof
      )
     )
    ) else if "%3"=="missingAllLinks" (
-    type callClaude.txt | find "installCurrentCloseOut" >nul 2>nul
+    type data\callClaude.template | find "installCurrentCloseOut" >nul 2>nul
     call :_errorCheck 1 %2 installCurrentCloseOut & goto:eof
    ) else if "%3"=="installCurrentCloseOut" (
     if "%_check_missingAllLinks%"=="1" (
@@ -134,8 +134,8 @@ goto:eof
   ) 
  )
  if "%1"=="--single-point" (
-  echo %1> callClaude.txt
-  call cmdVar.bat "type callClaude.txt" _callClaude
+  echo %1> data\callClaude.template
+  call cmdVar.bat "type data\callClaude.template" _callClaude
  )
 goto:eof
 
