@@ -9,8 +9,9 @@
 set "_debugLinkCheck=0" & rem 0 (default), 1 run debug mode
 
 rem NOTE - `_uriCurrent` is set in `current.bat` like:
-rem set "_uriCurrent=https://mirrors.kernel.org/sources.redhat.com/cygwin"
-rem set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl"
+if "%1"=="--set-uri" (
+ call :_setUriLinkCheck 1
+)
 
 if "%_debugLinkCheck%"=="0" (
  set "_downloadUrlPathLinkCheck=%_uriCurrent%/src/release/%_programCurrent%/"
@@ -112,6 +113,17 @@ goto:eof
  if "%1"=="--call-claude" (
   call "%~dp0current.bat" --close-out "check:missingAllLinks"
   goto _removeBatchVariablesLinkCheck
+ )
+goto:eof
+
+:_setUriLinkCheck
+ if "%1"=="1" (
+  set "_uriCurrent=https://mirrors.kernel.org/sources.redhat.com/cygwin"
+  call :_setUriLinkCheck 2 & goto:eof
+ )
+ if "%1"=="2" (
+  set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl"
+  goto:eof
  )
 goto:eof
 

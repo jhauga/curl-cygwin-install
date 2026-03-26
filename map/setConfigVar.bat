@@ -5,16 +5,21 @@ REM setConfigVar
 set "_programCurrent=curl"
 set "_siteCurrent=https://curl.se/download.html"
 set "_uriCurrent=https://mirrors.kernel.org/sources.redhat.com/cygwin"
-set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl/"
-set "_sourceMarkerCurrent=src.tar.xz"
-set _extractInstallUriCurrent=curl -s %_siteCurrent%  ^| findstr /R "%_siteUriCurrent%%_programCurrent%-[0-9].*%_sourceMarkerCurrent%" ^| head -n 1
+rem set "_siteUriCurrent=%_uriCurrent%/x86_64/release/curl/"
+set "_siteUriCurrent=%_uriCurrent%/src/release/"
+rem set "_sourceMarkerCurrent=src.tar.xz"
+rem set "_sourceMarkerCurrent=-[0-9].*src.tar.xz"
+set "_sourceMarkerCurrent=/"
+rem set _extractInstallUriCurrent=curl -s %_siteCurrent%  ^| findstr /R "%_siteUriCurrent%%_programCurrent%-[0-9].*%_sourceMarkerCurrent%" ^| head -n 1
+set _extractInstallUriCurrent=curl -s %_siteCurrent%  ^| findstr /R "%_siteUriCurrent%%_programCurrent%%_sourceMarkerCurrent%" ^| head -n 1
 rem comment out below if dependencies are not known as it guranatees all dependencies are downloaded
 rem set _packageDependenciesCurrent=--no-admin -q -I --build-depends %_programCurrent% 
 rem set _packageDependenciesCurrent=--no-admin -q -I -P binutils,gcc-core,libpsl-devel,libtool,perl,make
 set _packageDependenciesCurrent=--no-admin -q -I -P binutils,cmake,gcc-core,libpsl-devel,libtool,ninja,perl,libssl-devel,zlib-devel
 rem set _packageDependenciesCurrent=--no-admin -q -I -P binutils,cmake,gcc-core,libpsl-devel,libtool,perl,libssl-devel,zlib-devel
 :: TEST COMMANDS
-set "_runTestCommandCurrent=src\curl"
+set "_runTestCommandCurrent=src\%_programCurrent%"
+rem set "_runTestCommandCurrent=build\src\%_programCurrent%"
 rem set "_runTestCommandCurrent=src\bin\curl"
 set _runTestCommandCurrentA=%_runTestCommandCurrent% --version
 set _runTestCommandCurrentB=%_runTestCommandCurrent% --help
@@ -29,6 +34,7 @@ rem IMPORTANT - if not using, then ensure both `_useConfigOptionCurrent` and `_u
 rem IMPORTANT - don't duplicate "set _varName=" for the below to variables, sed is used to replace 1st instance in `install.bat`
 set _useConfigOptionCurrent=1
 set _configOptionCurrent=cmake . -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
+rem set _configOptionCurrent=mkdir build ^&^& cd build ^&^& cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
 rem set _configOptionCurrent=cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
 set "_useCustomMakeCurrent=1"
 set "_customMakeCurrent=ninja"
