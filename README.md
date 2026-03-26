@@ -192,6 +192,8 @@ To do so edit the following:
   - Change `_defaultConfig` to full configuration call with options to use for the installation
   - Change `_dailyCheckInstall` to 1 if checking URL for latest release
     - This allows task to be run on a daily schedule
+  - Change `_scheduledTaskMessage` to a value for the scheduled task to check if no version updates
+    - Here it is set to `current` instructing the scheduled task to do nothing if the version in `data/latest.uri` is the same as the current version
   - Change `_checkLatestUrlInstall` to the URL to check for latest release
 - **`config-options.txt`**
   - Change to viable configuration options if the install use a configure call

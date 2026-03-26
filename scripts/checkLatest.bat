@@ -6,5 +6,3 @@ curl -sI %_checkLatestUrlInstall% | find "Location" | sed "s/Location: //" > dat
 call "%~dp0..\lib\cmdVar.bat" "type data\latest.uri" _latestRelease
 call "%~dp0..\lib\cmdVar.bat" "type data\checkLatest.uri" _checkRelease
 del /Q data\checkLatest.uri
-rem Signal passed to `%_programCurrent%InstructionWork.txt` for scheduled task
-echo Pass> "%~dp0..\%_programInstall%InstructionWork.txt"

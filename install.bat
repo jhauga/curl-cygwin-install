@@ -17,7 +17,9 @@ set "_programInstall=curl"
 set "_useConfig=0"
 set "_configTool=sh configure"
 set "_defaultConfig=--without-ssl --disable-shared"
-set "_dailyCheckInstall=1" & rem check if url of latest.txt has changed
+set "_dailyCheckInstall=1" & rem 1 (default), 0 to NOT check if url of latest.txt has changed
+set "_scheduledTaskMessage=current" & rem change to value for scheduled task to check;
+rem                                       here - if file is current, then do nothing
 set "_checkLatestUrlInstall=https://github.com/%_programInstall%/%_programInstall%/releases/latest"
 
 :: For makseshift help
@@ -340,6 +342,8 @@ goto:eof
   if "%_latestRelease%"=="%_checkRelease%" (
    echo No new release. Exiting task.
    if "%_parOneInstall%"=="--task-run" (
+    rem Signal to `%_programCurrent%InstructionWork.txt` for scheduled task to handle
+    echo %_scheduledTaskMessage%> "%~dp0%_programInstall%InstructionWork.txt"
     goto _removeBatchVariables
    ) else (
     call :_checkLatestInstall 2 & goto:eof
@@ -396,4 +400,5 @@ goto:eof
  set _installNotepad=
  set _latestRelease=
  set _checkLatestUrlInstall=
+ set _scheduledTaskMessage=
 goto:eof

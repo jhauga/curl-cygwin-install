@@ -219,6 +219,8 @@ goto:eof
 goto:eof
 
 :_testCommandSeparator
+ rem delay in case live testing to see output
+ TIMEOUT /T 3 >nul 2>nul
  call "%_instructLine%" /B
  call "%_instructLine%" /D
  call "%_instructLine%" /B
@@ -226,27 +228,6 @@ goto:eof
 
 :: Clean variables from process.
 :_removeBatchhVariablesCurrent
- set _programCurrent=
- set _siteCurrent=
- set _uriCurrent=
- set _siteUriCurrent=
- set extractInstallUriCurrent=
- set _packageDependenciesCurrent=
- set _forceErrorPackageDependenciesCurrent=
- set _runTestCommandCurrent=
- set _useConfigOptionCurrent=
- set configOptionCurrent=
- set _useCustomMakeCurrent=
- set _customMakeCurrent=
- set _useForceErrorCustomMakeCurrent=
- set _forceErrorCustomMakeCurrent=
- set _runTestCommandCurrentA=
- set _runTestCommandCurrentB=
- set _runTestCommandCurrentC=
- set _runTestCommandCurrentD=
- set _runTestCommandCurrentE=
- set _runTestCommandCurrentF=
- set _runTestCommandCurrent_INSTALL_CHECK=
  set _parOneCurrent=
  set _checkParOneCurrent=
  set _parTwoCurrent=
@@ -257,6 +238,5 @@ goto:eof
  set _current=
  rem append new variables
  set _firstCallCurrent=
- set _forceErrorConfigOptionCurrent=
  exit /b
 goto:eof

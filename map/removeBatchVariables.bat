@@ -1,0 +1,37 @@
+@echo off
+REM removeBatchVariables
+::  Remove variables set from `setConfigVar` and `setDebugVar` after `runInstall`
+
+set _programCurrent=
+set _siteCurrent=
+set _uriCurrent=
+set _siteUriCurrent=
+set _sourceMarkerCurrent=
+set extractInstallUriCurrent=
+set packageDependenciesCurrent=
+set _runTestCommandCurrent=
+set runTestCommandCurrentA=
+set runTestCommandCurrentB=
+set runTestCommandCurrentC=
+set runTestCommandCurrentD=
+set runTestCommandCurrentE=
+set runTestCommandCurrentF=
+set runTestCommandCurrent_INSTALL_CHECK=
+set useConfigOptionCurrent=
+set configOptionCurrent=
+set _useCustomMakeCurrent=
+set _customMakeCurrent=
+set _runAdditionalCheck=
+set _additionalCheckConfigFlag=
+set forceErrorPackageDependenciesCurrent=
+set forceErrorConfigOptionCurrent=
+set _useForceErrorCustomMakeCurrent=
+set _forceErrorCustomMakeCurrent=
+set _debug=
+set _debugStep=
+set _debugRemoveDump=
+set _debugRunAsScheduledTask=
+set _debugCreateLogs=
+set _debugForceErrorDependencies=
+set _debugForceErrorConfig=
+set _debugForceErrorInstall=

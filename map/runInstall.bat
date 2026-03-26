@@ -82,7 +82,8 @@ goto:eof
    call "%_instructLine%" /B
    pause
   ) else (
-   if EXIST "install_check.txt" (
+   if EXIST "%~dp0install_check.txt" (
+    cd /D "%~dp0"
     call "%_cmdVar%" "type install_check.txt" _installCheck
    ) else (
     set "_installCheck=Fail"
@@ -121,6 +122,8 @@ goto:eof
   )
   rem notify claude installation test complete
   echo install complete> "%~dp0_installation_is_complete.txt"
+  rem clean current all environment variables
+  call "%~dp0removeBatchVariables.bat"
   if "%_debugRunAsScheduledTask%"=="1" (
    echo CHECK VARIABLE
    echo:
