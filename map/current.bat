@@ -120,6 +120,7 @@ goto:eof
    call "%_instructLine%" "Installing %_programCurrent%:"
    mkdir dump
    cd dump
+   
    rem download for cygwin build
    rem use variable from start of process to get most recent
    curl %_current% -o src.tar.xz
@@ -127,6 +128,12 @@ goto:eof
    rem extract files and specify install for program
    tar -xJf src.tar.xz & rm src.tar.xz
    move %_programCurrent%* tmp
+   if NOT EXIST "tmp\%_programCurrent%-*.tar.xz" (
+    cd ..
+    rmdir /S/Q dump
+    "%~dp0linkCheck.bat" --set-uri
+    goto:eof
+   )
    move tmp\%_programCurrent%-*.tar.xz %_programCurrent%.tar.xz
 
    rem extract install files for program
