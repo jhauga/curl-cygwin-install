@@ -180,9 +180,25 @@ ninja
 > [!NOTE]
 > You should have a **VERY** solid understanding of Windows batch scripts before configuring this repository to check the installation status of another Cygwin program.
 
-To do so edit the following:
+Mainly change the configuration variables at the top, or in the entire file for:
 
-- **`install.bat`**
+- **`configInstall.bat`**
+- **`config-options.txt`**
+- **`map\setConfigVar.bat`**
+
+For debugging configure:
+
+- **`map\setDebugVar.bat`**
+
+Add/remove variables as needed. To expand further see the below detatils.
+
+<details>
+
+<summary>Configure Tool Details</summary>
+
+To check the installation status of another program's latest version with Cygwin, edit the following:
+
+- **`configInstall.bat`**
   - Change `_programInstall` to program name
   - Change `_useConfig` to 1 if the program requires a configuration like `sh configure`; call before `make`
     - **NOTE** - mainly set configuration here if you want to use menu selection from `config-options.txt`
@@ -201,6 +217,11 @@ To do so edit the following:
   - Change `_programCurrent` to program name
   - Change `_siteCurrent` to the URL where instructions are
   - Change `_uriCurrent` to the URI of the main path where download files are
+  - Change `_findRegExCurrent` to the pattern to find the latest download link:
+    - Combinining `_programCurrent`, `_siteCurrent`, `_uriCurrent`
+    - Using raw data
+  - Change `_prependUriCurrent` to 1 to prepend a URL to the extracted download link
+  - Change `_prependPathCurrent` to the URL to prepend to extracted download link
   - Change `_extractInstallUriCurrent` to command to extract download URL
     - Around line 50 edit pipe as needed, below the comment is `rem CONFIG-EDIT--_extractInstallUriCurrent--CALL`
   - Change `_siteUriCurrent` to the URL that the site with instructions points download to
@@ -218,7 +239,7 @@ To do so edit the following:
       - Change `_runTestCommandCurrent_INSTALL_CHECK` to command to output something for automation script
   - **Optional**
     - If any configuration is needed then change `_useConfigOptionCurrent` to 1
-      - **NOTE** - if `_useConfig` in `install.bat` is 1, then this will be changed from that
+      - **NOTE** - if `_useConfig` in `configInstall.bat` is 1, then this will be changed from that
       - **NOTE** - you'll probably want to check the config call in `map\setConfigVar.bat`
       - Change `_configOptionCurrent` to configuration options
         - **NOTE** - set to `_none_used_` if only `sh configure` is used
@@ -226,6 +247,8 @@ To do so edit the following:
     - Change `_customMakeCurrent` to custom `make` call
       - Set `_useForceErrorCustomMakeCurrent` to 1 for debug make call
       - Change `_forceErrorCustomMakeCurrent` to a debug `make` call
+
+</details>
 
 ## Project Layout
 
@@ -235,6 +258,7 @@ Overview of the repository structure, the purpose of each folder, and descriptio
 
 | File | Purpose |
 |------|---------|
+| `configInstall.bat` | Set configuration variables for `install.bat` to start the Sandbox. |
 | `install.bat` | Main entry point. Orchestrates the full installation check process inside a Windows Sandbox. Accepts `--task-run` and `--delay` parameters for scheduled automation. |
 | `task.bat` | Opens the VS Code workspace for this project. |
 | `zipFilesCall.bat` | Utility to zip files for backup or distribution. |
@@ -254,10 +278,12 @@ Core installation logic that runs **inside** the Windows Sandbox.
 | `current.bat` | Drives the actual build steps for the current program: downloads dependencies, extracts source, runs configure/cmake, runs make/ninja, and executes test commands. |
 | `setConfigVar.bat` | Defines all configuration variables for the program being checked — download URLs, dependencies, test commands, configure/make options, and debug overrides. |
 | `setDebugVar.bat` | Debug toggle variables that control sandbox behavior: force dependency/config/install failures, skip shutdown, enable/disable logging. |
+| `extractSource.bat` | The steps to take to extract the download source code. |
 | `linkCheck.bat` | Checks if the Cygwin mirror download path returns a valid source link. Detects 404s that indicate an outdated or missing package version. |
 | `additionalCheck.bat` | Optional post-install script. Rebuilds with alternate config flags to test if certain options (e.g. `--without-ssl`) can be excluded. |
 | `install-winget.ps1` | PowerShell script that bootstraps `winget` via the NuGet provider and `Microsoft.WinGet.Client` module. |
 | `install_check.txt` | Output file written by test commands. Used to determine if the install passed or failed. |
+| `outLinkCheck.bat` | Used when monitoring Sandbox to show URI checked or one used for download. |
 
 ### `scripts/`
 
@@ -308,7 +334,3 @@ Archived log files from previous runs (e.g. `configure-error-03-19-26.log`).
 ### `support/`
 
 Supporting reference files (e.g. screenshots, images used for troubleshooting).
-
-### `curl/`
-
-Local copy of the curl source tree. Present for reference and used during builds inside the sandbox.

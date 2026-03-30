@@ -6,24 +6,21 @@ REM install
 ::   [1] = [--task-run] [--delay]
 ::
 ::  Options               Description
+::   --basic               Start Sandbox; and only install Winget, Cygwin, and Notepad++.
 ::   --task-run            Pass if running with an automated task.
 ::   --delay               Extract log data and results of the install.
 ::
 ::  Configuration
 ::   - Change the variable `_programInstall` to the value of the program being installed
 ::
-:: CONFIGURATION VARIABLE
-set "_programInstall=curl"
-set "_useConfig=0"
-set "_configTool=sh configure"
-set "_defaultConfig=--without-ssl --disable-shared"
-set "_dailyCheckInstall=1" & rem 1 (default), 0 to NOT check if url of latest.txt has changed
-set "_scheduledTaskMessage=current" & rem change to value for scheduled task to check;
-rem                                       here - if file is current, then do nothing
-set "_checkLatestUrlInstall=https://github.com/%_programInstall%/%_programInstall%/releases/latest"
-
 :: For makseshift help
-set "_helpLinesInstall=19"
+set "_helpLinesInstall=15"
+
+:: CONFIGURATION VARIABLE
+if NOT DEFINED _programInstall (
+ call "%~dp0configInstall.bat"
+ call "%~dp0%~n0.bat" %* & goto:eof
+)
 
 :: Start install check.
 title "%_programInstall%-cygwin-install"
@@ -64,10 +61,13 @@ if "%_parOneInstall%"=="--delay" (
   if EXIST "sandbox\mirrorSiteDownloadLink.uri" (
    move /Y "sandbox\mirrorSiteDownloadLink.uri" "data\mirrorSiteDownloadLink.uri"
   )
+  if EXIST "sandbox\USED_DOWNLOAD.uri" (
+   move /Y "sandbox\USED_DOWNLOAD.uri" "data\USED_DOWNLOAD.uri"
+  )
   if EXIST "sandbox\callClaude.template" (
    rem for claude or another automated script
    move /Y "sandbox\callClaude.template" "data\callClaude.template"
-   
+
    rem get more context for claude call
    call scripts\delay.bat
   )
@@ -84,6 +84,8 @@ if "%_parOneInstall%"=="--delay" (
 rem HOT-GLUE
 tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
 if "%_parOneInstall%"=="--task-run" (
+ rem ensure `_startProgramInstall` is undefined
+ set _startProgramInstall=
  if "%ERRORLEVEL%"=="0" (
   if NOT EXIST "sandbox\sandBoxRan.txt" (
    rem if run start sandbox, then sandBoxRan.txt was created
@@ -93,6 +95,15 @@ if "%_parOneInstall%"=="--task-run" (
   )
   exit /b
   goto:eof
+ )
+) else (
+ if "%_parOneInstall%"=="--basic" (
+  set "_installNotepad=yes"
+  set "_startProgramInstall=y"
+ ) else (
+  call lib\instructLine "Start %_programInstall% install after Winget and Cygwin have been installed?"
+  call lib\instructLine "y or n"
+  set /P _startProgramInstall=
  )
 )
 
@@ -168,6 +179,11 @@ goto:eof
    )
    goto:eof
   ) else (
+   if /i "%_startProgramInstall%"=="y" (
+    echo skip> "%~dp0sandbox\skip_install.txt"
+   ) else (
+    if EXIST "%~dp0sandbox\skip_%_programInstall%_install.txt" del /Q "%~dp0sandbox\skip_%_programInstall%_install.txt"
+   )
    start "" "%~dp0runStartSandbox.wsb"
   )
   rem next part of process
@@ -228,7 +244,7 @@ goto:eof
    xcopy /Y/E/I map sandbox >nul 2>nul
    copy /Y lib\cmdVar.bat sandbox\cmdVar.bat >nul 2>nul
    copy /Y lib\instructLine.bat sandbox\instructLine.bat >nul 2>nul
-   
+
    rem ensure sandbox folder is fully written before proceeding
    if EXIST "sandbox\runInstall.bat" (
     TIMEOUT /T 1 /NOBREAK >nul 2>nul
@@ -323,11 +339,13 @@ goto:eof
 
 :_checkInstallNotepad
  if "%1"=="1" (
-   call lib\instructLine "Do you also want to install Notepad++ for debugging in Sandox?"
-   call lib\instructLine "input - yes or no"
-   call lib\instructLine /B
-   set /P _installNotepad=
-   call :_checkInstallNotepad 2 & goto:eof
+   if NOT DEFINED _installNotepad (
+    call lib\instructLine "Do you also want to install Notepad++ for debugging in Sandox?"
+    call lib\instructLine "input - yes or no"
+    call lib\instructLine /B
+    set /P _installNotepad=
+    call :_checkInstallNotepad 2 & goto:eof
+  )
  )
  if "%1"=="2" (
   call lib\instructLine /B
@@ -340,8 +358,9 @@ goto:eof
 :_checkLatestInstall
  if "%1"=="1" (
   if "%_latestRelease%"=="%_checkRelease%" (
-   echo No new release. Exiting task.
+   echo No new release.
    if "%_parOneInstall%"=="--task-run" (
+    echo Exiting task.
     rem Signal to `%_programCurrent%InstructionWork.txt` for scheduled task to handle
     echo %_scheduledTaskMessage%> "%~dp0%_programInstall%InstructionWork.txt"
     goto _removeBatchVariables
@@ -401,4 +420,5 @@ goto:eof
  set _latestRelease=
  set _checkLatestUrlInstall=
  set _scheduledTaskMessage=
+ set _startProgramInstall=
 goto:eof

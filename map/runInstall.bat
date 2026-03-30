@@ -5,8 +5,7 @@ REM runInstall
 :: Set the debug variables
 if NOT DEFINED _debug (
  call "%~dp0setDebugVar.bat"
- "%~dp0%~n0.bat"
- exit /b
+ "%~dp0%~n0.bat" & exit /b
 )
 
 :: This is to run the install process on a schedule that follows curl releases.
@@ -55,10 +54,16 @@ if "%_debug%"=="1" (
  set PATH=%PATH%;C:\cygwin64\bin\
 
  call "%_instructLine%" "Setting User path to include cygwin."
- setx PATH "%PATH%;C:\cygwin64\bin\"
+ setx PATH "%PATH%;C:\cygwin64\bin"
 
- call current.bat ":_current_cygwin"
- call :_cleanRunInstall 1
+ call "%_instructLine%" "Installing setup-x86_64 binaries, using alias pkg."
+ curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
+ if EXIST "%~dp0skip_install.txt" (
+  call "%~dp0removeBatchVariables.bat"
+ ) else (
+  call current.bat ":_current_cygwin"
+  call :_cleanRunInstall 1
+ )
 )
 goto:eof
 
@@ -73,7 +78,7 @@ goto:eof
   rm -rf https*
   call "%_instructLine%" /H "Run Install Complete:"
   call "%_instructLine%" /B
-  
+
   rem delete HOT-GLUE sandbox check file
   if EXIST "%~dp0sandBoxRan.txt" del /Q "%~dp0sandBoxRan.txt" >nul 2>nul
 

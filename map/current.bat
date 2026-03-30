@@ -53,7 +53,11 @@ goto:eof
 
     rem CONFIG-EDIT--_extractInstallUriCurrent--CALL
     %_extractInstallUriCurrent% > pipedExtractInstallUriCurrent.uri
-    sed -i -E "s/^.* href=.(.*)\".*$/\1/" pipedExtractInstallUriCurrent.uri
+    if "%_prependUriCurrent%"=="1" (
+     sed -i -E "s;^.* href=.(.*)\" .*$;%_prependPathCurrent%\1;" pipedExtractInstallUriCurrent.uri
+    ) else (
+     sed -i -E "s;^.* href=.(.*)\" .*$;\1;" pipedExtractInstallUriCurrent.uri
+    )
 
     type pipedExtractInstallUriCurrent.uri > %_programCurrent%_download_uri.uri
     rem use variable for cmd tool
@@ -89,8 +93,6 @@ goto:eof
  if "%1"=="1" (
   rem download makeshift package management executable from cygwin
   call "%_instructLine%" "Preparing to Install Required cygwin Packages:"
-
-  curl https://www.cygwin.com/setup-x86_64.exe -o "C:\cygwin64\bin\pkg.exe"
   call "%_instructLine%" /H "INSTALLING PACKAGES FROM CYGWIN:"
   call "%_instructLine%" /D
   call "%_instructLine%" /B
@@ -118,32 +120,11 @@ goto:eof
    call %_parOneCurrent% --status-check & goto:eof
   ) else (
    call "%_instructLine%" "Installing %_programCurrent%:"
-   mkdir dump
-   cd dump
-   
-   rem download for cygwin build
-   rem use variable from start of process to get most recent
-   curl %_current% -o src.tar.xz
-
-   rem extract files and specify install for program
-   tar -xJf src.tar.xz & rm src.tar.xz
-   move %_programCurrent%* tmp
-   if NOT EXIST "tmp\%_programCurrent%-*.tar.xz" (
-    cd ..
-    rmdir /S/Q dump
+   call "%~dp0extractSource.bat"
+   if NOT EXIST "%~dp0dump" (
     "%~dp0linkCheck.bat" --set-uri
     goto:eof
    )
-   move tmp\%_programCurrent%-*.tar.xz %_programCurrent%.tar.xz
-
-   rem extract install files for program
-   tar -xJf %_programCurrent%.tar.xz & rm %_programCurrent%.tar.xz
-   move %_programCurrent%* ..\%_programCurrent%
-   rm -rf tmp
-
-   rem begin install process
-   rem in sandbox\curl
-   cd ..\%_programCurrent%
    if "%_useConfigOptionCurrent%"=="1" (
     if "%_debugForceErrorConfig%"=="0" (
      %_configOptionCurrent%

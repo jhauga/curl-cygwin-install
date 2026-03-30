@@ -74,12 +74,7 @@ goto:eof
    ) else (
     rem ensure `_firstCallCurrent` is undefined
     set _firstCallCurrent=
-    echo -------------------------------------------------------------------------------------------
-    echo:
-    echo %_downloadUrlDownloadLinkCheck%
-    echo:
-    echo -------------------------------------------------------------------------------------------
-    echo -------------------------------------------------------------------------------------------
+    call "%~dp0outLinkCheck.bat" %_downloadUrlDownloadLinkCheck% %~n0
     set "_current=%_downloadUrlDownloadLinkCheck%"
     echo %_downloadUrlDownloadLinkCheck%> "%~dp0mirrorSiteDownloadLink.uri"
     call "%~dp0current.bat" ":_current_cygwin" 2
