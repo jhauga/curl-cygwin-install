@@ -68,7 +68,8 @@ goto:eof
   if "%3"=="initial" (
    set "_%_preVar%Initial=%4"
    if "%4"=="1" (
-    sed -i "s/%2://" data\callClaude.template
+    sed "s/%2://" data\callClaude.template > data\callClaude.tmp
+    move /Y data\callClaude.tmp data\callClaude.template > nul
     if "%2"=="create" (
      rem specify the next by raw data
      type data\callClaude.template | find "failedInstall" >nul 2>nul
@@ -131,7 +132,7 @@ goto:eof
    ) else (
     call :_errorCheck --single-point & goto:eof
    )
-  ) 
+  )
  )
  if "%1"=="--single-point" (
   echo %1> data\callClaude.template

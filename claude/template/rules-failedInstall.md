@@ -12,12 +12,20 @@
 
 - After completion, do:
 
-```bash
+```batch
 :: Change back to the root of curl-cygwin-install
 cd /D "%~dp0.."
 :: Give context of results to a file for scheduled script
 :: NOTE - Variable `_programCurrent` is defined in `map\setConfigVar.bat`
 type %_programCurrent%InstructionWork.txt | find "Pass"
-if "%ERRORLEVEL%"=="0" (echo pass> "claudeResponse.txt" & echo Go to next part of this process ) else (echo fail> "%~dp0claudeResponse.txt" & echo Do nothing else, and end this process)
+
+:: Output to `claudeResponse.txt` whether install was a pass or fail.
+if "%ERRORLEVEL%"=="0" (
+ echo pass> "%~dp0claudeResponse.txt"
+ echo Go to next part of this process if it exist; else do nothing, and end this process
+) else (
+ echo fail> "%~dp0claudeResponse.txt"
+ echo Do nothing, and end this process
+)
 ```
 

@@ -77,8 +77,11 @@ call claude\callClaude.bat
 git clone https://github.com/jhauga/curl-cygwin-install.git
 ```
 
-2. Open or navigate to `curl-cygwin-install`, and run or double click
-`install.bat`, then read prompt instruction.
+2. Either:
+  - Open or navigate to `curl-cygwin-install`, and run or double click
+ `install.bat`, then read prompt instruction; continuing to steps 3 to 5.
+  - Call `install --basic` to open and only run installation of `winget`, `cygwin`,
+ and `Notepad++`, eliminating steps 3 to 5.
 3. The process should begin automatically in the Sandbox window.
 4. The process will take close to 15 minutes to complete, and consists of:
    - Install `winget`
@@ -182,7 +185,7 @@ ninja
 
 Mainly change the configuration variables at the top, or in the entire file for:
 
-- **`configInstall.bat`**
+- **`scripts\configInstall.bat`**
 - **`config-options.txt`**
 - **`map\setConfigVar.bat`**
 
@@ -198,7 +201,7 @@ Add/remove variables as needed. To expand further see the below detatils.
 
 To check the installation status of another program's latest version with Cygwin, edit the following:
 
-- **`configInstall.bat`**
+- **`scripts\configInstall.bat`**
   - Change `_programInstall` to program name
   - Change `_useConfig` to 1 if the program requires a configuration like `sh configure`; call before `make`
     - **NOTE** - mainly set configuration here if you want to use menu selection from `config-options.txt`
@@ -258,15 +261,10 @@ Overview of the repository structure, the purpose of each folder, and descriptio
 
 | File | Purpose |
 |------|---------|
-| `configInstall.bat` | Set configuration variables for `install.bat` to start the Sandbox. |
 | `install.bat` | Main entry point. Orchestrates the full installation check process inside a Windows Sandbox. Accepts `--task-run` and `--delay` parameters for scheduled automation. |
-| `task.bat` | Opens the VS Code workspace for this project. |
-| `zipFilesCall.bat` | Utility to zip files for backup or distribution. |
 | `StartSandbox.wsb` | Windows Sandbox configuration with a template `_PATH_` placeholder for the mapped folder. Used by `install.bat` to generate a sandbox. |
 | `runStartSandbox.wsb` | Windows Sandbox configuration with a hardcoded mapped folder path. Runs `runInstall.bat` on sandbox logon. |
 | `config-options.txt` | Menu of `configure` SSL/TLS options (e.g. `--with-openssl`, `--without-ssl`) selectable during install. |
-| `_dump.txt` | Scratch/log file for recording troubleshooting notes. |
-| `README.md` | This file. |
 
 ### `map/`
 
@@ -274,26 +272,28 @@ Core installation logic that runs **inside** the Windows Sandbox.
 
 | File | Purpose |
 |------|---------|
-| `runInstall.bat` | Sandbox entry point. Installs `winget`, then `cygwin`, sets the PATH, and calls `current.bat` to build the program. Collects pass/fail results. |
+| `additionalCheck.bat` | Optional post-install script. Rebuilds with alternate config flags to test if certain options (e.g. `--without-ssl`) can be excluded. |
 | `current.bat` | Drives the actual build steps for the current program: downloads dependencies, extracts source, runs configure/cmake, runs make/ninja, and executes test commands. |
+| `extractSource.bat` | The steps to take to extract the download source code. |
+| `install_check.txt` | Output file written by test commands. Used to determine if the install passed or failed. |
+| `install-winget.ps1` | PowerShell script that bootstraps `winget` via the NuGet provider and `Microsoft.WinGet.Client` module. |
+| `linkCheck.bat` | Checks if the Cygwin mirror download path returns a valid source link. Detects 404s that indicate an outdated or missing package version. |
+| `outLinkCheck.bat` | Used when monitoring Sandbox to show URI checked or one used for download. |
+| `runInstall.bat` | Sandbox entry point. Installs `winget`, then `cygwin`, sets the PATH, and calls `current.bat` to build the program. Collects pass/fail results. |
 | `setConfigVar.bat` | Defines all configuration variables for the program being checked — download URLs, dependencies, test commands, configure/make options, and debug overrides. |
 | `setDebugVar.bat` | Debug toggle variables that control sandbox behavior: force dependency/config/install failures, skip shutdown, enable/disable logging. |
-| `extractSource.bat` | The steps to take to extract the download source code. |
-| `linkCheck.bat` | Checks if the Cygwin mirror download path returns a valid source link. Detects 404s that indicate an outdated or missing package version. |
-| `additionalCheck.bat` | Optional post-install script. Rebuilds with alternate config flags to test if certain options (e.g. `--without-ssl`) can be excluded. |
-| `install-winget.ps1` | PowerShell script that bootstraps `winget` via the NuGet provider and `Microsoft.WinGet.Client` module. |
-| `install_check.txt` | Output file written by test commands. Used to determine if the install passed or failed. |
-| `outLinkCheck.bat` | Used when monitoring Sandbox to show URI checked or one used for download. |
 
 ### `scripts/`
 
-Helper scripts called by the main process.
+Helper scripts called by the main process for a speicific task.
 
 | File | Purpose |
 |------|---------|
 | `checkLatest.bat` | Compares `data\latest.uri` against the GitHub releases redirect URL to detect new versions. |
-| `delay.bat` | Called with `install.bat --delay`. Generates the `data\claude-context.yaml` file from `claudeContext.bat` output and sanitizes it with `sed`. |
 | `claudeContext.bat` | Outputs a YAML-formatted summary of the current installation context (program, URLs, dependencies, configure call, make call, test commands). |
+| `configInstall.bat` | Set configuration variables for `install.bat` to start the Sandbox. |
+| `delay.bat` | Called with `install.bat --delay`. Generates the `data\claude-context.yaml` file from `claudeContext.bat` output and sanitizes it with `sed`. |
+| `removeBatchVariables.bat` | Remove all batch variables set from install and callClaude leftover after error. |
 
 ### `claude/`
 
@@ -302,10 +302,9 @@ Automated error resolution via Claude Code, triggered after a scheduled install 
 | File | Purpose |
 |------|---------|
 | `callClaude.bat` | Main Claude integration script. Reads `callClaude.template` to determine what action is needed, assembles `prompt.md` from template fragments, performs variable substitution with `sed`, and invokes Claude Code. |
-| `setVar.bat` | Parses `callClaude.template` and `claude-context.yaml` to set variables that control which prompt sections and rules are included. |
 | `setEnvironment.bat` | Defines OS, terminal, local repo paths, branch name, and commit message variables used in prompt generation. |
+| `setVar.bat` | Parses `callClaude.template` and `claude-context.yaml` to set variables that control which prompt sections and rules are included. |
 | `prompt.md` | Generated prompt file (assembled at runtime from templates). Not committed. |
-| `prompt.md.template` | Reference copy of the prompt template structure. |
 | `template/` | Markdown fragments that are concatenated to build `prompt.md`. Includes goal sections, rules, closing notes, and check/create variants for different error scenarios. |
 
 ### `lib/`
@@ -314,8 +313,10 @@ Shared utility scripts.
 
 | File | Purpose |
 |------|---------|
+| `checkDate.bat` | Get the current date in `00-00-0000` format. |
 | `cmdVar.bat` | Stores the output of a command into a batch variable. Used throughout the project for dynamic variable assignment. |
 | `instructLine.bat` | Prints formatted instruction lines, headings, dividers, and blank lines to the terminal for readable output. |
+| `lastModified.bat` | Check the last modified date of a file against current date, then do something. |
 
 ### `data/`
 
@@ -327,10 +328,6 @@ Runtime data files generated during execution.
 
 Other files such as `claude-context.yaml`, `install_log.log`, and `config_log.log` are generated at runtime and may appear here after a run.
 
-### `logs/`
-
-Archived log files from previous runs (e.g. `configure-error-03-19-26.log`).
-
 ### `support/`
 
-Supporting reference files (e.g. screenshots, images used for troubleshooting).
+Supporting reference files (e.g. screenshots, images used for troubleshooting) better explained with an image.

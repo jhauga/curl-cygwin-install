@@ -9,16 +9,17 @@ REM install
 ::   --basic               Start Sandbox; and only install Winget, Cygwin, and Notepad++.
 ::   --task-run            Pass if running with an automated task.
 ::   --delay               Extract log data and results of the install.
+::   --normalize           Only removes files triggering claude after testing/debugging.
 ::
 ::  Configuration
 ::   - Change the variable `_programInstall` to the value of the program being installed
 ::
 :: For makseshift help
-set "_helpLinesInstall=15"
+set "_helpLinesInstall=16"
 
 :: CONFIGURATION VARIABLE
 if NOT DEFINED _programInstall (
- call "%~dp0configInstall.bat"
+ call "%~dp0scripts\configInstall.bat"
  call "%~dp0%~n0.bat" %* & goto:eof
 )
 
@@ -65,11 +66,9 @@ if "%_parOneInstall%"=="--delay" (
    move /Y "sandbox\USED_DOWNLOAD.uri" "data\USED_DOWNLOAD.uri"
   )
   if EXIST "sandbox\callClaude.template" (
-   rem for claude or another automated script
-   move /Y "sandbox\callClaude.template" "data\callClaude.template"
-
-   rem get more context for claude call
-   call scripts\delay.bat
+   rem check and make sure that it has been recently updated
+   rem also get more context for claude call
+   call "lib\lastModified.bat" "sandbox\callClaude.template" callClaude.template --run-script "delay.bat"
   )
   rmdir /S/Q sandbox >nul 2>nul
  ) else (
@@ -79,7 +78,12 @@ if "%_parOneInstall%"=="--delay" (
  )
  goto _removeBatchVariables
  goto:eof
+) else if "%_parOneInstall%"=="--normalize" (
+ if EXIST "data\callClaude.template" del /Q "data\callClaude.template" >nul 2>nul
+ goto _removeBatchVariables
+ goto:eof
 )
+
 :: For back-to-back calls of scheduled task to HOT-GLUE issue #1
 rem HOT-GLUE
 tasklist /fi "imagename eq WindowsSandboxServer.exe" | findstr "WindowsSandboxServer.exe" >nul 2>nul
@@ -421,4 +425,7 @@ goto:eof
  set _checkLatestUrlInstall=
  set _scheduledTaskMessage=
  set _startProgramInstall=
+ set _checkDate=
+
+ call "%~dp0scripts\removeBatchVariables.bat"
 goto:eof

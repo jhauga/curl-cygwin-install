@@ -1,4 +1,4 @@
-@echo off 
+@echo off
 REM setDebug
 ::  Used to determine conditions for functionality testing.
 
