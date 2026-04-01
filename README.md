@@ -78,9 +78,9 @@ git clone https://github.com/jhauga/curl-cygwin-install.git
 ```
 
 2. Either:
-  - Open or navigate to `curl-cygwin-install`, and run or double click
+   - Open or navigate to `curl-cygwin-install`, and run or double click
  `install.bat`, then read prompt instruction; continuing to steps 3 to 5.
-  - Call `install --basic` to open and only run installation of `winget`, `cygwin`,
+   - Call `install --basic` to open and only run installation of `winget`, `cygwin`,
  and `Notepad++`, eliminating steps 3 to 5.
 3. The process should begin automatically in the Sandbox window.
 4. The process will take close to 15 minutes to complete, and consists of:
