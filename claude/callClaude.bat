@@ -4,7 +4,7 @@ REM callClaude
 
 :: Debug variables
 set "_debugCallClaude=0" & rem 0 (default), 1 does not call claude-code
-set "_debugResetCallClaude=1" & rem 0 (default), 1 resest "callClaude.template" to `_resetCallClaude`
+set "_debugResetCallClaude=0" & rem 0 (default), 1 resest "callClaude.template" to `_resetCallClaude`
 set "_resetCallClaude=create:failedInstall" & rem as needed, only used if `_debugCallClaude` is 1
 
 :: Start call

@@ -50,6 +50,7 @@ rem IMPORTANT - if not using, then ensure both `_useConfigOptionCurrent` and `_u
 rem IMPORTANT - don't duplicate "set _varName=" for the below to variables, sed is used to replace 1st instance in `install.bat`
 set _useConfigOptionCurrent=1
 
+rem set _configOptionCurrent=sh configure --without-ssl --disable-shared
 set _configOptionCurrent=cmake . -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
 rem set _configOptionCurrent=cmake . -G Ninja -DCMAKE_BUILD_TYPE=Release
 rem set _configOptionCurrent=mkdir build ^&^& cd build ^&^& cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
