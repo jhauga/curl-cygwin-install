@@ -183,10 +183,10 @@ goto:eof
    )
    goto:eof
   ) else (
-   if /i "%_startProgramInstall%"=="y" (
+   if /i "%_startProgramInstall%"=="n" (
     echo skip> "%~dp0sandbox\skip_install.txt"
    ) else (
-    if EXIST "%~dp0sandbox\skip_%_programInstall%_install.txt" del /Q "%~dp0sandbox\skip_%_programInstall%_install.txt"
+    if EXIST "%~dp0sandbox\skip_install.txt" del /Q "%~dp0sandbox\skip_install.txt"
    )
    start "" "%~dp0runStartSandbox.wsb"
   )
